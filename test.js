@@ -11,7 +11,7 @@ three = "baz" / "bek"
 */
 
 var abnf = `
-master = one " " two " " three
+master = one " " / two " " / three
 `;
 
 
