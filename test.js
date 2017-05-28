@@ -3,7 +3,7 @@ var Heket = require('./index');
 
 /*
 var abnf = `
-master = one " " two " " three
+master = (one / four) " " two " " three
 one = "foo" / "fim"
 two = "bar" / "beh"
 three = "baz" / "bek"
@@ -11,13 +11,21 @@ three = "baz" / "bek"
 */
 
 var abnf = `
-master = one " " / two " " / three
+one = a / b
+a = "foo"
+b = "bar"
 `;
-
 
 
 var rule = Heket.parse(abnf).getFirstRule();
 
-var input = 'foo bar baz';
+var input = 'bar';
 
-console.log(rule.parse(input));
+console.log(rule.match(input));
+
+/*
+{
+	content: 'fooxxx',
+	length: 6
+}
+*/
