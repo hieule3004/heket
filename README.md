@@ -31,18 +31,10 @@ Then you could apply the result to other strings to see if they adhere to the ru
 
 `````js
 console.log(rule.match('foo'));
-/*
-{
-    content: 'foo'
-}
-*/
+// { content: 'foo' }
 
 console.log(rule.match('bar'));
-/*
-{
-    content: 'bar'
-}
-*/
+// { content: 'bar' }
 
 console.log(rule.match('baz'));
 // null
