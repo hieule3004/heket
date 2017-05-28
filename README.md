@@ -30,19 +30,21 @@ var rule = Heket.parseRule(abnf_string);
 Then you could apply the result to other strings to see if they adhere to the rule:
 
 `````js
-var input = 'foo';
+console.log(rule.match('foo'));
+/*
+{
+    content: 'foo'
+}
+*/
 
-var match = rule.match('foo');
+console.log(rule.match('bar'));
+/*
+{
+    content: 'bar'
+}
+*/
 
-console.log(match);
-// {
-//     content: 'foo'
-// }
-
-
-var no_match = rule.match('baz');
-
-console.log(no_match);
+console.log(rule.match('baz'));
 // null
 `````
 
