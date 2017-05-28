@@ -1,5 +1,5 @@
 {
-	"name": "heket"
+	"name": "heket",
 	"description": "Heket - ABNF Parser for Node.js",
 	"homepage": "https://github.com/burninggarden/heket",
 	"version": "0.0.1",
