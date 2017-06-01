@@ -17,7 +17,7 @@ Let's say you had a basic ABNF rule:
 
 `a = "foo" / "bar"`
 
-You could use Heket to produce an AST representation of this simple grammar via the following:
+You can use Heket to produce an AST representation of this simple grammar via the following:
 
 `````js
 var Heket = require('heket');
@@ -27,7 +27,7 @@ var abnf_string = 'a = "foo" / "bar"';
 var rule = Heket.parseRule(abnf_string);
 `````
 
-Then you could apply the result to other strings to see if they adhere to the rule:
+Then you can check the result against other strings to see if they adhere to the rule:
 
 `````js
 console.log(rule.match('foo'));
@@ -47,4 +47,13 @@ console.log(rule.match('baz'));
 
 ### Why did you write this?
 
-I needed a general-purpose ABNF parser in order to develop a better IRCD. The grammar for the IRC specification is embodied in ABNF. Turns out it's much less time consuming to just copy+paste the definitions from the spec as ABNF literals and let the parser determine whether input messages to the IRC server match the specified format, than to manually embody all of the logic of the specification in the code directly. Whether or not it actually ends up being performant to generate ASTs for every inbound message at runtime remains to be seen :]
+I needed a general-purpose ABNF parser in order to develop a better IRCD.
+The grammar for the IRC specification is embodied in ABNF. Turns out it's much
+less time consuming to just copy+paste the definitions from the spec as ABNF
+literals and let the parser determine whether input messages to the IRC server
+match the specified format, than to manually embody all of the logic of the
+specification in the code directly. Whether or not it actually ends up being
+performant to generate ASTs for every inbound message at runtime remains to be
+seen :]
+
+
