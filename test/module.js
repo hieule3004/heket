@@ -135,9 +135,59 @@ function parseThreeQuotedStrings(test) {
 	test.done();
 }
 
+function parseOptional(test) {
+	test.expect(2);
+
+	OptionalQuotedString: {
+		let rules = Heket.parse(`
+			foo = bar ["baz"]
+			bar = "bar"
+		`);
+
+		let matching_result = rules.match('bar');
+
+		test.deepEqual(matching_result, {
+			value: 'bar',
+			rules: {
+				bar: {
+					value: 'bar',
+					rules: { }
+				}
+			}
+		});
+	}
+
+	OptionalRule: {
+		let rules = Heket.parse(`
+			foo = bar [baz]
+			bar = "bar"
+			baz = "baz"
+		`);
+
+		let matching_result = rules.match('barbaz');
+
+		test.deepEqual(matching_result, {
+			value: 'barbaz',
+			rules: {
+				bar: {
+					value: 'bar',
+					rules: { }
+				},
+				baz: {
+					value: 'baz',
+					rules: { }
+				}
+			}
+		});
+	}
+
+	test.done();
+}
+
 
 module.exports = {
 	parseOneQuotedString,
 	parseTwoQuotedStrings,
-	parseThreeQuotedStrings
+	parseThreeQuotedStrings,
+	parseOptional
 };
