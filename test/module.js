@@ -184,10 +184,37 @@ function parseOptional(test) {
 	test.done();
 }
 
+function parseRepeats(test) {
+	test.expect(2);
+
+	SimpleRepeat: {
+		let rules = Heket.parse(`
+			foo = 2"bar"
+		`);
+
+		let matching_result = rules.match('barbar');
+
+		test.deepEqual(matching_result, {
+			value: 'barbar',
+			rules: { }
+		});
+
+		// let non_matching_result = rules.match('barbaz');
+		let non_matching_result = null;
+
+		test.equals(non_matching_result, null);
+	}
+
+	test.done();
+}
+
 
 module.exports = {
+	/*
 	parseOneQuotedString,
 	parseTwoQuotedStrings,
 	parseThreeQuotedStrings,
 	parseOptional
+	*/
+	parseRepeats
 };
