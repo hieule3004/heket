@@ -14,8 +14,8 @@ function parseOneQuotedString(test) {
 		let matching_result = rules.match('xxx');
 
 		test.deepEqual(matching_result, {
-			content: 'xxx',
-			length:  3
+			value: 'xxx',
+			rules: { }
 		});
 
 		let non_matching_result = rules.match('xxxy');
@@ -33,8 +33,18 @@ function parseOneQuotedString(test) {
 		let matching_result = rules.match('xxx');
 
 		test.deepEqual(matching_result, {
-			content: 'xxx',
-			length:  3
+			value: 'xxx',
+			rules: {
+				bar: {
+					value: 'xxx',
+					rules: {
+						baz: {
+							value: 'xxx',
+							rules: { }
+						}
+					}
+				}
+			}
 		});
 
 		let non_matching_result = rules.match('xx');
@@ -59,8 +69,17 @@ function parseTwoQuotedStrings(test) {
 		let matching_result = rules.match('barbaz');
 
 		test.deepEqual(matching_result, {
-			content: 'barbaz',
-			length:  6
+			value: 'barbaz',
+			rules: {
+				bar: {
+					value: 'bar',
+					rules: { }
+				},
+				baz: {
+					value: 'baz',
+					rules: { }
+				}
+			}
 		});
 
 		let non_matching_result = rules.match('bar');
@@ -77,8 +96,13 @@ function parseTwoQuotedStrings(test) {
 		let matching_result = rules.match('barbaz');
 
 		test.deepEqual(matching_result, {
-			content: 'barbaz',
-			length:  6
+			value: 'barbaz',
+			rules: {
+				bar: {
+					value: 'bar',
+					rules: { }
+				}
+			}
 		});
 
 		let non_matching_result = rules.match('foobaz');
@@ -95,8 +119,8 @@ function parseTwoQuotedStrings(test) {
 		let matching_result = rules.match('baz');
 
 		test.deepEqual(matching_result, {
-			content: 'baz',
-			length:  3
+			value: 'baz',
+			rules: { }
 		});
 
 		let non_matching_result = rules.match('barbaz');
