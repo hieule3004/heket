@@ -187,12 +187,33 @@ function parseOptional(test) {
 function parseRepeats(test) {
 	test.expect(2);
 
+	/*
 	SimpleRepeat: {
 		let rules = Heket.parse(`
-			foo = 2"bar"
+			foo = 3"bar"
 		`);
 
-		let matching_result = rules.match('barbar');
+		let input = 'barbarbar';
+
+		let matching_result = rules.match(input);
+
+		test.deepEqual(matching_result, {
+			value: input,
+			rules: { }
+		});
+
+		let non_matching_result = rules.match('barbar');
+
+		test.equals(non_matching_result, null);
+	}
+	*/
+
+	RepeatWithBacktracking: {
+		let rules = Heket.parse(`
+			foo = 1*6"foo" "foobar"
+		`);
+
+		let matching_result = rules.match('foofoofoobar');
 
 		test.deepEqual(matching_result, {
 			value: 'barbar',
