@@ -187,7 +187,6 @@ function parseOptional(test) {
 function parseRepeats(test) {
 	test.expect(2);
 
-	/*
 	SimpleRepeat: {
 		let rules = Heket.parse(`
 			foo = 3"bar"
@@ -206,17 +205,23 @@ function parseRepeats(test) {
 
 		test.equals(non_matching_result, null);
 	}
-	*/
 
 	RepeatWithBacktracking: {
 		let rules = Heket.parse(`
 			foo = 1*6"foo" "foobar"
 		`);
 
-		let matching_result = rules.match('foofoofoobar');
+		let matching_result;
+
+		try {
+			matching_result = rules.match('foofoofoobar');
+		} catch (error) {
+			console.log(error);
+			process.exit(1);
+		}
 
 		test.deepEqual(matching_result, {
-			value: 'barbar',
+			value: 'foofoofoobar',
 			rules: { }
 		});
 
@@ -231,11 +236,11 @@ function parseRepeats(test) {
 
 
 module.exports = {
+	parseOneQuotedString
 	/*
-	parseOneQuotedString,
 	parseTwoQuotedStrings,
 	parseThreeQuotedStrings,
-	parseOptional
-	*/
+	parseOptional,
 	parseRepeats
+	*/
 };
