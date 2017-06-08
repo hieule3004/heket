@@ -247,11 +247,69 @@ function parseRepeats(test) {
 	test.done();
 }
 
+function parseNumeric(test) {
+	test.expect(6);
+
+	SimpleNumerics: {
+		let rules = Heket.parse(`
+			foo = %d97 %d98 %d99 ; some comment here
+		`);
+
+		let matching_result = rules.match('abc');
+
+		test.deepEqual(matching_result, {
+			string: 'abc',
+			rules:  [ ]
+		});
+
+		let non_matching_result = rules.match('ABC');
+
+		test.equals(non_matching_result, null);
+	}
+
+	NumericRange: {
+		let rules = Heket.parse(`
+			foo = 3%d97-99
+		`);
+
+		let matching_result = rules.match('abc');
+
+		test.deepEqual(matching_result, {
+			string: 'abc',
+			rules:  [ ]
+		});
+
+		let non_matching_result = rules.match('ac');
+
+		test.equals(non_matching_result, null);
+	}
+
+	NumericConcatenation: {
+		let rules = Heket.parse(`
+			foo = %d97.99.98
+		`);
+
+		let matching_result = rules.match('acb');
+
+		test.deepEqual(matching_result, {
+			string: 'acb',
+			rules:  [ ]
+		});
+
+		let non_matching_result = rules.match('abc');
+
+		test.equals(non_matching_result, null);
+	}
+
+	test.done();
+}
+
 
 module.exports = {
 	parseOneQuotedString,
 	parseTwoQuotedStrings,
 	parseThreeQuotedStrings,
 	parseOptional,
-	parseRepeats
+	parseRepeats,
+	parseNumeric
 };

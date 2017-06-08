@@ -3,7 +3,7 @@
 var Heket = require('./index');
 
 var rules = Heket.parse(`
-	foo = 1*6"foo" "foobar"
+	foo = 3%d97-99
 `);
 
 /*
@@ -13,6 +13,6 @@ var rules = Heket.parse(`
 */
 
 
-var result = rules.match('foobar');
+var result = rules.match('abc');
 
 console.log(result);
