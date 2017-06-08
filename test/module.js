@@ -4,7 +4,7 @@ var
 
 
 function parseOneQuotedString(test) {
-	test.expect(4);
+	test.expect(5);
 
 	WithQuotedString: {
 		let rules = Heket.parse(`
@@ -21,6 +21,19 @@ function parseOneQuotedString(test) {
 		let non_matching_result = rules.match('xxxy');
 
 		test.equals(non_matching_result, null);
+	}
+
+	WithVaryingCase: {
+		let rules = Heket.parse(`
+			foo = "xXx"
+		`);
+
+		let matching_result = rules.match('XxX');
+
+		test.deepEqual(matching_result, {
+			string: 'XxX',
+			rules:  [ ]
+		});
 	}
 
 	WithRule: {
