@@ -14,8 +14,8 @@ function parseOneQuotedString(test) {
 		let matching_result = rules.match('xxx');
 
 		test.deepEqual(matching_result, {
-			value: 'xxx',
-			rules: { }
+			string: 'xxx',
+			rules:  [ ]
 		});
 
 		let non_matching_result = rules.match('xxxy');
@@ -33,18 +33,20 @@ function parseOneQuotedString(test) {
 		let matching_result = rules.match('xxx');
 
 		test.deepEqual(matching_result, {
-			value: 'xxx',
-			rules: {
-				bar: {
-					value: 'xxx',
-					rules: {
-						baz: {
-							value: 'xxx',
+			string: 'xxx',
+			rules:  [
+				{
+					rule_name: 'bar',
+					string: 'xxx',
+					rules: [
+						{
+							rule_name: 'baz',
+							string: 'xxx',
 							rules: { }
 						}
-					}
+					]
 				}
-			}
+			]
 		});
 
 		let non_matching_result = rules.match('xx');
@@ -69,17 +71,19 @@ function parseTwoQuotedStrings(test) {
 		let matching_result = rules.match('barbaz');
 
 		test.deepEqual(matching_result, {
-			value: 'barbaz',
-			rules: {
-				bar: {
-					value: 'bar',
-					rules: { }
+			string: 'barbaz',
+			rules:  [
+				{
+					rule_name: 'bar',
+					string: 'bar',
+					rules: [ ]
 				},
-				baz: {
-					value: 'baz',
-					rules: { }
+				{
+					rule_name: 'baz',
+					string: 'baz',
+					rules:  [ ]
 				}
-			}
+			]
 		});
 
 		let non_matching_result = rules.match('bar');
@@ -96,13 +100,14 @@ function parseTwoQuotedStrings(test) {
 		let matching_result = rules.match('barbaz');
 
 		test.deepEqual(matching_result, {
-			value: 'barbaz',
-			rules: {
-				bar: {
-					value: 'bar',
-					rules: { }
+			string: 'barbaz',
+			rules:  [
+				{
+					rule_name: 'bar',
+					string: 'bar',
+					rules: [ ]
 				}
-			}
+			]
 		});
 
 		let non_matching_result = rules.match('foobaz');
@@ -119,8 +124,8 @@ function parseTwoQuotedStrings(test) {
 		let matching_result = rules.match('baz');
 
 		test.deepEqual(matching_result, {
-			value: 'baz',
-			rules: { }
+			string: 'baz',
+			rules:  [ ]
 		});
 
 		let non_matching_result = rules.match('barbaz');
@@ -147,13 +152,14 @@ function parseOptional(test) {
 		let matching_result = rules.match('bar');
 
 		test.deepEqual(matching_result, {
-			value: 'bar',
-			rules: {
-				bar: {
-					value: 'bar',
-					rules: { }
+			string: 'bar',
+			rules:  [
+				{
+					rule_name: 'bar',
+					string: 'bar',
+					rules: [ ]
 				}
-			}
+			]
 		});
 	}
 
@@ -167,17 +173,19 @@ function parseOptional(test) {
 		let matching_result = rules.match('barbaz');
 
 		test.deepEqual(matching_result, {
-			value: 'barbaz',
-			rules: {
-				bar: {
-					value: 'bar',
-					rules: { }
+			string: 'barbaz',
+			rules:  [
+				{
+					rule_name: 'bar',
+					string: 'bar',
+					rules: [ ]
 				},
-				baz: {
-					value: 'baz',
-					rules: { }
+				{
+					rule_name: 'baz',
+					string: 'baz',
+					rules:  [ ]
 				}
-			}
+			]
 		});
 	}
 
@@ -185,7 +193,7 @@ function parseOptional(test) {
 }
 
 function parseRepeats(test) {
-	test.expect(2);
+	test.expect(4);
 
 	SimpleRepeat: {
 		let rules = Heket.parse(`
@@ -197,8 +205,8 @@ function parseRepeats(test) {
 		let matching_result = rules.match(input);
 
 		test.deepEqual(matching_result, {
-			value: input,
-			rules: { }
+			string: input,
+			rules:  [ ]
 		});
 
 		let non_matching_result = rules.match('barbar');
@@ -211,22 +219,14 @@ function parseRepeats(test) {
 			foo = 1*6"foo" "foobar"
 		`);
 
-		let matching_result;
-
-		try {
-			matching_result = rules.match('foofoofoobar');
-		} catch (error) {
-			console.log(error);
-			process.exit(1);
-		}
+		let matching_result = rules.match('foofoofoobar');
 
 		test.deepEqual(matching_result, {
-			value: 'foofoofoobar',
-			rules: { }
+			string: 'foofoofoobar',
+			rules:  [ ]
 		});
 
-		// let non_matching_result = rules.match('barbaz');
-		let non_matching_result = null;
+		let non_matching_result = rules.match('foobar');
 
 		test.equals(non_matching_result, null);
 	}
@@ -236,11 +236,9 @@ function parseRepeats(test) {
 
 
 module.exports = {
-	parseOneQuotedString
-	/*
+	parseOneQuotedString,
 	parseTwoQuotedStrings,
 	parseThreeQuotedStrings,
 	parseOptional,
 	parseRepeats
-	*/
 };
