@@ -4,7 +4,7 @@ var
 
 
 function testABNFSpec(test) {
-	let rules = Heket.parse(`
+	var spec = `
 		rulelist       =  1*( rule / (*c-wsp c-nl) )
 
 		rule           =  rulename defined-as elements c-nl
@@ -64,9 +64,13 @@ function testABNFSpec(test) {
 							   ;  without angles
 							   ; prose description, to be used as
 							   ;  last resort
-	`);
+	`;
 
-	console.log(rules);
+	var rules = Heket.parse(spec);
+
+	var match = rules.match(spec);
+
+	console.log(match);
 	test.done();
 }
 
