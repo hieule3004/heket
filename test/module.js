@@ -306,10 +306,12 @@ function parseNumeric(test) {
 
 
 module.exports = {
+	/*
 	parseOneQuotedString,
 	parseTwoQuotedStrings,
 	parseThreeQuotedStrings,
 	parseOptional,
 	parseRepeats,
 	parseNumeric
+	*/
 };
