@@ -251,11 +251,20 @@ function parseRepeats(test) {
 			baz = "baz"
 		`);
 
-		let matching_result = rules.match('foobarbarfoofoofoobarbar');
+		let matching_result = rules.match('bazbarbarbazbazbazbarbar');
 
 		test.deepEqual(matching_result, {
-			string: 'foobarbarfoofoofoobarbar',
-			rules:  [ ]
+			string: 'bazbarbarbazbazbazbarbar',
+			rules:  [
+				{ rule_name: 'baz', string: 'baz', rules: [ ] },
+				{ rule_name: 'bar', string: 'bar', rules: [ ] },
+				{ rule_name: 'bar', string: 'bar', rules: [ ] },
+				{ rule_name: 'baz', string: 'baz', rules: [ ] },
+				{ rule_name: 'baz', string: 'baz', rules: [ ] },
+				{ rule_name: 'baz', string: 'baz', rules: [ ] },
+				{ rule_name: 'bar', string: 'bar', rules: [ ] },
+				{ rule_name: 'bar', string: 'bar', rules: [ ] }
+			]
 		});
 	}
 
