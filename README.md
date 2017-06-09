@@ -1,6 +1,15 @@
 # Heket
 #### *An ABNF parser for Node.js*
 
+### Table of Contents
+
+-[Overview](#overview)
+-[Installation](#installation)
+-[Basic Usage](#basic-usage)
+-[Parsing the ABNF Spec](#parsing-the-abnf-spec)
+-[Why Did You Write This?](#why-did-you-write-this)
+-[Where Did The Name Come From?](#where-did-the-name-come-from)
+
 
 ### Overview
 
@@ -141,7 +150,7 @@ anything else. Still, it's an interesting mind game.
 
 
 
-### Why did you write this?
+### Why Did You Write This?
 
 I needed a general-purpose ABNF parser in order to develop a better IRCD.
 The grammar for the IRC specification is embodied in ABNF. Turns out it's much
@@ -153,7 +162,7 @@ performant to generate ASTs for every inbound message at runtime remains to be
 seen :]
 
 
-### Where did the name come from?
+### Where Did the Name Come From?
 
 Heket (or Heqet) was an Egyptian fertility goddess. She was represented as a
 woman with the head of a frog. I don't know what that has to do with parsing
