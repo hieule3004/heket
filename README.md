@@ -11,6 +11,11 @@ Actually, it's really two parsers in one:
 - A recursive descent parser that can match any input text to a set of rules generated from the above ABNF parser
 
 
+### Installation
+
+`npm install heket`
+
+
 ### Basic Usage
 
 Let's say you had a basic ABNF rule:
@@ -31,19 +36,109 @@ Then you can check the result against other strings to see if they adhere to the
 
 `````js
 console.log(rule.match('foo'));
-// { content: 'foo' }
+// { string: 'foo' }
 
 console.log(rule.match('bar'));
-// { content: 'bar' }
+// { string: 'bar' }
 
 console.log(rule.match('baz'));
 // null
 `````
 
 
-### Installation
+### Parsing the ABNF Spec
 
-`npm install heket`
+Turns out it's possible to embody the formal specification for ABNF grammars
+in ABNF syntax itself. And the authors of RFC-5234 actually set about doing it.
+Here's the ABNF specification for ABNF:
+
+`````abnf
+rulelist       =  1*( rule / (*c-wsp c-nl) )
+
+rule           =  rulename defined-as elements c-nl
+					   ; continues if next line starts
+					   ;  with white space
+
+rulename       =  ALPHA *(ALPHA / DIGIT / "-")
+
+defined-as     =  *c-wsp ("=" / "=/") *c-wsp
+					   ; basic rules definition and
+					   ;  incremental alternatives
+
+elements       =  alternation *c-wsp
+
+c-wsp          =  WSP / (c-nl WSP)
+
+c-nl           =  comment / CRLF
+					   ; comment or newline
+
+comment        =  ";" *(WSP / VCHAR) CRLF
+
+alternation    =  concatenation
+				  *(*c-wsp "/" *c-wsp concatenation)
+
+concatenation  =  repetition *(1*c-wsp repetition)
+
+repetition     =  [repeat] element
+
+repeat         =  1*DIGIT / (*DIGIT "*" *DIGIT)
+
+element        =  rulename / group / option /
+				  char-val / num-val / prose-val
+
+group          =  "(" *c-wsp alternation *c-wsp ")"
+
+option         =  "[" *c-wsp alternation *c-wsp "]"
+
+char-val       =  DQUOTE *(%x20-21 / %x23-7E) DQUOTE
+					   ; quoted string of SP and VCHAR
+					   ;  without DQUOTE
+
+num-val        =  "%" (bin-val / dec-val / hex-val)
+
+bin-val        =  "b" 1*BIT
+				  [ 1*("." 1*BIT) / ("-" 1*BIT) ]
+					   ; series of concatenated bit values
+					   ;  or single ONEOF range
+
+dec-val        =  "d" 1*DIGIT
+				  [ 1*("." 1*DIGIT) / ("-" 1*DIGIT) ]
+
+hex-val        =  "x" 1*HEXDIG
+				  [ 1*("." 1*HEXDIG) / ("-" 1*HEXDIG) ]
+
+prose-val      =  "<" *(%x20-3D / %x3F-7E) ">"
+					   ; bracketed string of SP and VCHAR
+					   ;  without angles
+					   ; prose description, to be used as
+					   ;  last resort
+`````
+
+What this means is that we can use Heket to parse the formal ABNF grammar
+specification upon which it is based. We can then use the resultant AST to
+determine whether the ABNF specification... in ABNF... is valid ABNF.
+
+`````js
+var Heket = require('heket');
+
+// Make-believe method; just imagine this returns a string that contains
+// the ABNF lines from directly above this code sample.
+var spec = readFile('./abnf.abnf');
+
+var rules = Heket.parse(spec);
+
+if (rules.match(spec)) {
+	// It's valid ABNF!
+}
+`````
+
+Now, honestly, we should hope that the authors of the ABNF specification would
+be capable of embodying their own specification reflexively, so this exercise
+is mostly useful as a demonstration of Heket's accurate implementation than
+anything else. Still, it's an interesting mind game.
+
+
+
 
 ### Why did you write this?
 
@@ -57,3 +152,42 @@ performant to generate ASTs for every inbound message at runtime remains to be
 seen :]
 
 
+### Where did the name come from?
+
+Heket (or Heqet) was an Egyptian fertility goddess. She was represented as a
+woman with the head of a frog. I don't know what that has to do with parsing
+formal grammars.
+
+`````
+
+         +++++++++++++++++++
+       ++++         +++   +++
+       ++                 +++++++
+       ++++++  +++            +++++++
+       +++++++++++++             +++++++++
+        +++++++++++++                  +++++++++
+         +++++++++++++                      ++++++++
+           ++++++++ +++                          ++++++
+            +++++    ++++                           ++++++
+               ++      ++++                            +++++
+               +++       +++                             +++++
+                +++                                        ++++
+                +++                                          ++++
+                 +++                                      +++  +++
+                  ++                                      +++++ ++++
+                  ++++                                      ++++  +++
+                    +++   ++                                  ++++ +++
+                     ++++ +++   ++                              +++ +++
+                       ++++++   ++                               +++++++
+                         ++++   ++               +++++++++         ++++++
+                           ++   ++              ++++   +++++++      +++++
+                           ++  +++              ++     ++  ++++++    +++++
+                          +++ ++++++            ++    ++++++  ++++++ +++++
+                         +++ +++ +++++   +  ++  ++++     +++++++ +++  ++++
+          +++++++++     +++  +++    ++++++++++++++++++++     +++++++  ++++
+       +++++++++++++++++++  +++      ++++++++++++++++++++++++++  +++++ +++
+       +++++++++++++++++++++++        +++++++++++++++++++++++++++   +++++
+       +++++++++++++++++++++               +++++++++++++++++++++++++++++
+               +++                         ++++           +++++++++++
+
+`````
