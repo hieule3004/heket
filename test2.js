@@ -1,20 +1,9 @@
-
 var Heket = require('./index');
 
 var spec = `
-rulelist       =  1*( rule / (*c-wsp c-nl) )
+x              =  repetition
 
-rule           =  rulename defined-as elements c-nl
-					   ; continues if next line starts
-					   ;  with white space
-
-rulename       =  ALPHA *(ALPHA / DIGIT / "-")
-
-defined-as     =  *c-wsp ("=" / "=/") *c-wsp
-					   ; basic rules definition and
-					   ;  incremental alternatives
-
-elements       =  alternation *c-wsp
+repetition     =  [repeat] element
 
 c-wsp          =  WSP / (c-nl WSP)
 
@@ -28,11 +17,9 @@ alternation    =  concatenation
 
 concatenation  =  repetition *(1*c-wsp repetition)
 
-repetition     =  [repeat] element
-
 repeat         =  1*DIGIT / (*DIGIT "*" *DIGIT)
 
-element        =  rulename / group / option /
+element        =  group / option /
 				  char-val / num-val / prose-val
 
 group          =  "(" *c-wsp alternation *c-wsp ")"
@@ -67,9 +54,7 @@ var rules = Heket.parse(spec);
 
 // console.log(JSON.stringify(rules.getFirstRule().getAST().toJSON(), null, 4));
 
-var match = rules.match(`
-rule =  foo bar baz
-`);
+var match = rules.match('1*2"bar"');
 
 console.log(JSON.stringify(match, null, 4));
 
