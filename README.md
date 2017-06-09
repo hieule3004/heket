@@ -116,7 +116,8 @@ prose-val      =  "<" *(%x20-3D / %x3F-7E) ">"
 
 What this means is that we can use Heket to parse the formal ABNF grammar
 specification upon which it is based. We can then use the resultant AST to
-determine whether the ABNF specification... in ABNF... is valid ABNF.
+determine whether the ABNF specification... written in ABNF... is actually
+valid ABNF.
 
 `````js
 var Heket = require('heket');
