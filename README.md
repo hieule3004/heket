@@ -3,12 +3,12 @@
 
 ### Table of Contents
 
--[Overview](#overview)
--[Installation](#installation)
--[Basic Usage](#basic-usage)
--[Parsing the ABNF Spec](#parsing-the-abnf-spec)
--[Why Did You Write This?](#why-did-you-write-this)
--[Where Did The Name Come From?](#where-did-the-name-come-from)
+1. [Overview](#overview)
+2. [Installation](#installation)
+3. [Basic Usage](#basic-usage)
+4. [Parsing the ABNF Spec](#parsing-the-abnf-spec)
+5. [Why Did You Write This?](#why-did-you-write-this)
+6. [Where Did The Name Come From?](#where-did-the-name-come-from)
 
 
 ### Overview
