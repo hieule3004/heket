@@ -1,7 +1,6 @@
 
 var Heket = require('./index');
 
-
 var spec = `
 	rulelist       =  1*( rule / (*c-wsp c-nl) )
 
@@ -65,6 +64,8 @@ var spec = `
 `;
 
 var rules = Heket.parse(spec);
+
+// console.log(JSON.stringify(rules.getFirstRule().getAST().toJSON(), null, 4));
 
 var match = rules.match(spec);
 

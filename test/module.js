@@ -206,7 +206,7 @@ function parseOptional(test) {
 }
 
 function parseRepeats(test) {
-	test.expect(4);
+	test.expect(5);
 
 	SimpleRepeat: {
 		let rules = Heket.parse(`
@@ -242,6 +242,21 @@ function parseRepeats(test) {
 		let non_matching_result = rules.match('foobar');
 
 		test.equals(non_matching_result, null);
+	}
+
+	RepeatWithNoMaxLimit: {
+		let rules = Heket.parse(`
+			foo = 1*( bar / baz )
+			bar = "bar"
+			baz = "baz"
+		`);
+
+		let matching_result = rules.match('foobarbarfoofoofoobarbar');
+
+		test.deepEqual(matching_result, {
+			string: 'foobarbarfoofoofoobarbar',
+			rules:  [ ]
+		});
 	}
 
 	test.done();
@@ -306,12 +321,10 @@ function parseNumeric(test) {
 
 
 module.exports = {
-	/*
 	parseOneQuotedString,
 	parseTwoQuotedStrings,
 	parseThreeQuotedStrings,
 	parseOptional,
 	parseRepeats,
 	parseNumeric
-	*/
 };

@@ -18,7 +18,7 @@ var core_rules = RulesList.fromABNFString(`
 	CR             =  %x0D
 						   ; carriage return
 
-	CRLF           =  CR LF
+	CRLF           =  [CR] LF
 						   ; Internet standard newline
 
 	CTL            =  %x00-1F / %x7F
@@ -62,6 +62,7 @@ var core_rules = RulesList.fromABNFString(`
 `);
 
 Core.setRulesList(core_rules);
+
 
 module.exports = {
 	parse
