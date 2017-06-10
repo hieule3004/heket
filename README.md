@@ -132,6 +132,7 @@ nick              = ( ALPHA / special-character) *(ALPHA / DIGIT / special-chara
 host              = "burninggarden.com"
                     ; cheating for the purposes of this demonstration!
 user              = "pachet"
+                    ; cheating for the purposes of this demonstration!
 
 command           = 1*ALPHA / 3DIGIT
 params            = " " [ ( ":" trailing ) / ( middle params ) ]
@@ -191,7 +192,7 @@ console.log(match);
                     "rule_name": "middle",
                     "string": "#ops",
                     "rules": [
-						...
+						// ...
                     ]
                 },
                 {
@@ -202,7 +203,7 @@ console.log(match);
                             "rule_name": "trailing",
                             "string": "Test message",
                             "rules": [
-								...
+								// ...
                             ]
                         }
                     ]
