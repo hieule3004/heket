@@ -88,7 +88,7 @@ var input = 'xxxyyyzz';
 console.log(rules.match(input));
 `````
 
-Would print the following output:
+...would print the following output:
 
 `````json
 {
