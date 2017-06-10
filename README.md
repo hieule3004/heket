@@ -92,28 +92,28 @@ Would print the following output:
 
 `````json
 {
-	string: 'xxxyyyzz',
-	rules: [
+	"string": "xxxyyyzz",
+	"rules": [
 		{
-			rule_name: 'baz',
-			string: 'xxx',
-			rules: [
+			"rule_name": "baz",
+			"string": "xxx",
+			"rules": [
 				{
-					rule_name: 'nested-baz',
-					string: 'xxx',
-					rules: [ ]
+					"rule_name": "nested-baz",
+					"string": "xxx",
+					"rules": [ ]
 				}
 			]
 		},
 		{
-			rule_name: 'bar',
-			string: 'yyy',
-			rules: [ ]
+			"rule_name": "bar",
+			"string": "yyy",
+			"rules": [ ]
 		},
 		{
-			rule_name: 'wat',
-			string: 'zz',
-			rules: [ ]
+			"rule_name": "wat",
+			"string": "zz",
+			"rules": [ ]
 		}
 	]
 }
