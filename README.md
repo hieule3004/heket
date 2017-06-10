@@ -1,5 +1,5 @@
 # Heket
-#### *An ABNF parser for Node.js*
+#### *An ABNF parser generator for Node.js*
 
 
 &nbsp;
@@ -141,23 +141,23 @@ message from a client. In that case, the following snippet...
 
 ```js
 var rules = Heket.createParser(`
-message           = [ ":" prefix " " ] command params CRLF
-prefix            = nick [ "!" user ] [ "@" host ]
-nick              = ( ALPHA / special-character) *(ALPHA / DIGIT / special-character / "-" )
+    message           = [ ":" prefix " " ] command params CRLF
+    prefix            = nick [ "!" user ] [ "@" host ]
+    nick              = ( ALPHA / special-character) *(ALPHA / DIGIT / special-character / "-" )
 
-host              = "burninggarden.com"
-                    ; cheating for the purposes of this demonstration!
-user              = "pachet"
-                    ; cheating for the purposes of this demonstration!
+    host              = "burninggarden.com"
+                        ; cheating for the purposes of this demonstration!
+    user              = "pachet"
+                        ; cheating for the purposes of this demonstration!
 
-command           = 1*ALPHA / 3DIGIT
-params            = " " [ ( ":" trailing ) / ( middle params ) ]
-middle            = param-octet *( ":" / param-octet )
-trailing          = *( ":" / " " / param-octet )
-param-octet       = %x01-09 / %x0B-0C / %x0E-1F / %x21-39 / %x3B-FF
-                    ; any octet except NUL, CR, LF, ' ' and ':'
+    command           = 1*ALPHA / 3DIGIT
+    params            = " " [ ( ":" trailing ) / ( middle params ) ]
+    middle            = param-octet *( ":" / param-octet )
+    trailing          = *( ":" / " " / param-octet )
+    param-octet       = %x01-09 / %x0B-0C / %x0E-1F / %x21-39 / %x3B-FF
+                        ; any octet except NUL, CR, LF, ' ' and ':'
 
-special-character = "-" / "[" / "]" / "\" / "\`" / "^" / "{" / "}"
+    special-character = "-" / "[" / "]" / "\" / "\`" / "^" / "{" / "}"
 `);
 
 var input = `:pachet!pachet@burninggarden.com PRIVMSG #ops :Test message
@@ -247,8 +247,8 @@ console.log(match.getRawResult());
 }
 ```
 
-Notice: In the parsed result above, note how there are two instances of rule
-results for the "params" rule. `match.get('params')` will only return the first
+*Notice*: In the parsed result above, there are two instances of rule results
+for the "params" rule. `match.get('params')` will only return the first
 occurring result. If you need an array of all the matching results, use
 `match.getAll()` instead:
 
@@ -260,8 +260,8 @@ The above snippet would print:
 
 ```js
 [
-	" #ops :Test message",
-	" :Test message"
+    " #ops :Test message",
+    " :Test message"
 ]
 ```
 
