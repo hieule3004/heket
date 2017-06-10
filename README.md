@@ -72,7 +72,7 @@ console.log(rule.match('baz'));
 
 The above examples were pretty trivial; they just checked for matches against
 basic strings. But Heket also allows you to unpack rule values from more complex
-grammar definitions.
+grammar definitions. The following snippet...
 
 `````js
 var rules = Heket.parse(`
@@ -86,8 +86,11 @@ wat        = [*"z"]
 var input = 'xxxyyyzz';
 
 console.log(rules.match(input));
+`````
 
-/* Prints:
+Would print the following output:
+
+`````json
 {
 	string: 'xxxyyyzz',
 	rules: [
