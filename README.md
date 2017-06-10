@@ -192,7 +192,6 @@ console.log(match);
                     "rule_name": "middle",
                     "string": "#ops",
                     "rules": [
-						// ...
                     ]
                 },
                 {
@@ -203,7 +202,6 @@ console.log(match);
                             "rule_name": "trailing",
                             "string": "Test message",
                             "rules": [
-								// ...
                             ]
                         }
                     ]
