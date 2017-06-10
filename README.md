@@ -6,18 +6,23 @@
 1. [Overview](#overview)
 2. [Installation](#installation)
 3. [Basic Usage](#basic-usage)
-4. [Parsing the ABNF Spec](#parsing-the-abnf-spec)
-5. [Why Did You Write This?](#why-did-you-write-this)
-6. [Where Did The Name Come From?](#where-did-the-name-come-from)
+4. [Rule matching](#rule-matching)
+5. [Practical Example: Email](#practical-example-email)
+5. [Impractical Example: ABNF](#impractical-example-abnf)
+6. [Why Did You Write This?](#why-did-you-write-this)
+7. [Where Did The Name Come From?](#where-did-the-name-come-from)
 
 
 ### Overview
 
-Heket is a parser for the [ABNF](https://tools.ietf.org/html/rfc5234) specification, written in Node.js.
+Heket is a parser for the [ABNF](https://tools.ietf.org/html/rfc5234)
+specification, written in Node.js.
 
 Actually, it's really two parsers in one:
-- An ABNF syntax parser that uses the ABNF DSL specified in RFC 5234 to generate an AST representative of the rules specified in your input text
-- A recursive descent parser that can match any input text to a set of rules generated from the above ABNF parser
+- An ABNF syntax parser that uses the ABNF DSL specified in RFC 5234 to
+  generate an AST representative of the rules specified in your input text
+- A recursive descent parser that can match any input text to a set of rules
+  generated from the above ABNF parser
 
 
 ### Installation
@@ -31,7 +36,8 @@ Let's say you had a basic ABNF rule:
 
 `a = "foo" / "bar"`
 
-You can use Heket to produce an AST representation of this simple grammar via the following:
+You can use Heket to produce an AST representation of this simple grammar via
+the following:
 
 `````js
 var Heket = require('heket');
@@ -41,7 +47,8 @@ var abnf_string = 'a = "foo" / "bar"';
 var rule = Heket.parseRule(abnf_string);
 `````
 
-Then you can check the result against other strings to see if they adhere to the rule:
+Then you can check the result against other strings to see if they adhere to
+the rule:
 
 `````js
 console.log(rule.match('foo'));
@@ -54,12 +61,155 @@ console.log(rule.match('baz'));
 // null
 `````
 
+### Rule Matching
 
-### Parsing the ABNF Spec
+The above examples were pretty trivial; they just checked for matches against
+basic strings. But Heket also allows you to unpack rule values from more complex
+grammar definitions.
 
-Turns out it's possible to embody the formal specification for ABNF grammars
-in ABNF syntax itself. And the authors of RFC-5234 actually set about doing it.
-Here's the ABNF specification for ABNF:
+`````js
+var rules = Heket.parse(`
+foo        = *(baz / bar) wat
+baz        = nested-baz
+nested-baz = "baz"
+bar        = "yyy"
+wat        = [*"z"]
+`);
+
+var input = 'xxxyyyzz';
+
+console.log(rules.match(input));
+
+/* Prints:
+{
+	string: 'xxxyyyzz',
+	rules: [
+		{
+			rule_name: 'baz',
+			string: 'xxx',
+			rules: [
+				{
+					rule_name: 'nested-baz',
+					string: 'xxx',
+					rules: [ ]
+				}
+			]
+		},
+		{
+			rule_name: 'bar',
+			string: 'yyy',
+			rules: [ ]
+		},
+		{
+			rule_name: 'wat',
+			string: 'zz',
+			rules: [ ]
+		}
+	]
+}
+
+`````
+
+### Practical example: IRC
+
+The following snippet...
+
+`````js
+var rules = Heket.parse(`
+message           = [ ":" prefix " " ] command params CRLF
+prefix            = nick [ "!" user ] [ "@" host ]
+nick              = ( ALPHA / special-character) *(ALPHA / DIGIT / special-character / "-" )
+
+host              = "burninggarden.com"
+                    ; cheating for the purposes of this demonstration!
+user              = "pachet"
+
+command           = 1*ALPHA / 3DIGIT
+params            = " " [ ( ":" trailing ) / ( middle params ) ]
+middle            = param-octet *( ":" / param-octet )
+trailing          = *( ":" / " " / param-octet )
+param-octet       = %x01-09 / %x0B-0C / %x0E-1F / %x21-39 / %x3B-FF
+                    ; any octet except NUL, CR, LF, ' ' and ':'
+
+special-character = "-" / "[" / "]" / "\" / "\`" / "^" / "{" / "}"
+`);
+
+var input = `:pachet!pachet@burninggarden.com PRIVMSG #ops :Test message
+`; // <-- Note the trailing CRLF here; this is required per the IRC spec.
+
+var match = rules.match(input);
+
+console.log(match);
+`````
+
+...would produce this output:
+
+`````json
+{
+    "string": ":pachet!pachet@burninggarden.com PRIVMSG #ops :Test message\n",
+    "rules": [
+        {
+            "rule_name": "prefix",
+            "string": "pachet!pachet@burninggarden.com",
+            "rules": [
+                {
+                    "rule_name": "nick",
+                    "string": "pachet",
+                    "rules": []
+                },
+                {
+                    "rule_name": "user",
+                    "string": "pachet",
+                    "rules": []
+                },
+                {
+                    "rule_name": "host",
+                    "string": "burninggarden.com",
+                    "rules": []
+                }
+            ]
+        },
+        {
+            "rule_name": "command",
+            "string": "PRIVMSG",
+            "rules": []
+        },
+        {
+            "rule_name": "params",
+            "string": " #ops :Test message",
+            "rules": [
+                {
+                    "rule_name": "middle",
+                    "string": "#ops",
+                    "rules": [
+						...
+                    ]
+                },
+                {
+                    "rule_name": "params",
+                    "string": " :Test message",
+                    "rules": [
+                        {
+                            "rule_name": "trailing",
+                            "string": "Test message",
+                            "rules": [
+								...
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+`````
+
+
+### Impractical Example: ABNF
+
+As it turns out, it's possible to embody the formal specification for ABNF
+grammars in ABNF syntax itself. And the authors of RFC-5234 actually set about
+doing it. Here's the ABNF specification for ABNF:
 
 `````abnf
 rulelist       =  1*( rule / (*c-wsp c-nl) )
@@ -137,9 +287,8 @@ var spec = readFile('./abnf.abnf');
 
 var rules = Heket.parse(spec);
 
-if (rules.match(spec)) {
-	// It's valid ABNF!
-}
+console.log(rules.match(spec) !== null);
+// Prints "true"; it's valid ABNF!
 `````
 
 Now, honestly, we should hope that the authors of the ABNF specification would
