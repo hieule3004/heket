@@ -295,11 +295,7 @@ determine whether the ABNF specification... written in ABNF... is actually
 valid ABNF.
 
 `````js
-var Heket = require('heket');
-
-// Make-believe method; just imagine this returns a string that contains
-// the ABNF lines from directly above this code sample.
-var spec = readFile('./abnf.abnf');
+var spec = Heket.getSpec();
 
 var rules = Heket.parse(spec);
 
