@@ -7,7 +7,7 @@
 2. [Installation](#installation)
 3. [Basic Usage](#basic-usage)
 4. [Rule matching](#rule-matching)
-5. [Practical Example: Email](#practical-example-email)
+5. [Practical Example: IRC](#practical-example-irc)
 5. [Impractical Example: ABNF](#impractical-example-abnf)
 6. [Why Did You Write This?](#why-did-you-write-this)
 7. [Where Did The Name Come From?](#where-did-the-name-come-from)
@@ -25,6 +25,7 @@ Actually, it's really two parsers in one:
   generated from the above ABNF parser
 
 
+&nbsp;
 ### Installation
 
 `npm install heket`
