@@ -121,7 +121,8 @@ console.log(rules.match(input));
 &nbsp;
 ### Practical example: IRC
 
-The following snippet...
+Let's imagine we were running an IRC server, and we wanted to parse an incoming
+message from a client. In that case, the following snippet...
 
 `````js
 var rules = Heket.parse(`
@@ -211,6 +212,9 @@ console.log(match);
     ]
 }
 `````
+
+That makes it easy for us to pluck off rule results of interest (ie, "nick" or
+"command").
 
 
 &nbsp;
