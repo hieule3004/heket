@@ -18,14 +18,11 @@
 &nbsp;
 ### Overview
 
-Heket is a parser for the [ABNF](https://tools.ietf.org/html/rfc5234)
+Heket is a parser generator for the [ABNF](https://tools.ietf.org/html/rfc5234)
 specification, written in Node.js.
 
-Actually, it's really two parsers in one:
-- An ABNF syntax parser that uses the ABNF DSL specified in RFC 5234 to
-  generate an AST representative of the rules specified in your input text
-- A recursive descent parser that can match any input text to a set of rules
-  generated from the above ABNF parser
+It allows you to create custom parsers for formal grammars written in ABNF,
+and then apply those parsers to input text to see if it matches your rules.
 
 
 &nbsp;
@@ -41,31 +38,35 @@ Let's say you had a basic ABNF rule:
 
 `a = "foo" / "bar"`
 
-You can use Heket to produce an AST representation of this simple grammar via
-the following:
+You can use Heket to produce a custom parser from this simple grammar via the
+following:
 
-`````js
+```js
 var Heket = require('heket');
 
 var abnf_string = 'a = "foo" / "bar"';
 
-var rule = Heket.parseRule(abnf_string);
-`````
+var parser = Heket.createParser(abnf_string);
+```
 
-Then you can check the result against other strings to see if they adhere to
-the rule:
+Then you can use that parser to parse input text, to see if it matches the ABNF
+that you originally specified. If the input text adheres to your grammar, then
+`parse()` will return a match object with information about the matched result.
+If the input text does not adhere to the grammar, `parse()` will return `null`.
 
-`````js
-console.log(rule.match('foo'));
-// { string: 'foo' }
+```js
+console.log(parser.parse('foo').string);
+console.log(parser.parse('bar').string);
+console.log(parser.parse('baz'));
+```
 
-console.log(rule.match('bar'));
-// { string: 'bar' }
+The above snippet would print:
 
-console.log(rule.match('baz'));
-// null
-`````
-
+```js
+"foo"
+"bar"
+null
+```
 
 &nbsp;
 ### Rule Matching
@@ -74,51 +75,62 @@ The above examples were pretty trivial; they just checked for matches against
 basic strings. But Heket also allows you to unpack rule values from more complex
 grammar definitions. The following snippet...
 
-`````js
-var rules = Heket.parse(`
-foo        = *(baz / bar) wat
-baz        = nested-baz
-nested-baz = "baz"
-bar        = "yyy"
-wat        = [*"z"]
+```js
+var parser = Heket.createParser(`
+    foo        = *(baz / bar) wat
+    baz        = nested-baz
+    nested-baz = "baz"
+    bar        = "yyy"
+    wat        = [*"z"]
 `);
 
 var input = 'xxxyyyzz';
 
-console.log(rules.match(input));
-`````
+var match = parser.parse('xxxyyyzz');
+
+console.log(match.get('baz'));
+console.log(match.get('nested-baz'));
+console.log(match.get('bar'));
+console.log(match.get('wat'));
+
+console.log(match.getRawResult());
+```
 
 ...would print the following output:
 
-`````json
-{
-	"string": "xxxyyyzz",
-	"rules": [
-		{
-			"rule_name": "baz",
-			"string": "xxx",
-			"rules": [
-				{
-					"rule_name": "nested-baz",
-					"string": "xxx",
-					"rules": [ ]
-				}
-			]
-		},
-		{
-			"rule_name": "bar",
-			"string": "yyy",
-			"rules": [ ]
-		},
-		{
-			"rule_name": "wat",
-			"string": "zz",
-			"rules": [ ]
-		}
-	]
-}
+```js
+"xxx"
+"xxx"
+"yyy"
+"zz"
 
-`````
+{
+    "string": "xxxyyyzz",
+    "rules": [
+        {
+            "rule_name": "baz",
+            "string": "xxx",
+            "rules": [
+                {
+                    "rule_name": "nested-baz",
+                    "string": "xxx",
+                    "rules": [ ]
+                }
+            ]
+        },
+        {
+            "rule_name": "bar",
+            "string": "yyy",
+            "rules": [ ]
+        },
+        {
+            "rule_name": "wat",
+            "string": "zz",
+            "rules": [ ]
+        }
+    ]
+}
+```
 
 
 &nbsp;
@@ -127,8 +139,8 @@ console.log(rules.match(input));
 Let's imagine we were running an IRC server, and we wanted to parse an incoming
 message from a client. In that case, the following snippet...
 
-`````js
-var rules = Heket.parse(`
+```js
+var rules = Heket.createParser(`
 message           = [ ":" prefix " " ] command params CRLF
 prefix            = nick [ "!" user ] [ "@" host ]
 nick              = ( ALPHA / special-character) *(ALPHA / DIGIT / special-character / "-" )
@@ -151,14 +163,33 @@ special-character = "-" / "[" / "]" / "\" / "\`" / "^" / "{" / "}"
 var input = `:pachet!pachet@burninggarden.com PRIVMSG #ops :Test message
 `; // <-- Note the trailing CRLF here; this is required per the IRC spec.
 
-var match = rules.match(input);
+var match = parser.parse(input);
 
-console.log(match);
-`````
+console.log(match.get('prefix'));
+console.log(match.get('nick'));
+console.log(match.get('user'));
+console.log(match.get('host'));
+console.log(match.get('command'));
+console.log(match.get('params'));
+console.log(match.get('middle'));
+console.log(match.get('trailing'));
+
+console.log(match.getRawResult());
+```
 
 ...would produce this output:
 
-`````json
+
+```js
+"pachet!pachet@burninggarden.com"
+"pachet"
+"pachet"
+"burninggarden.com"
+"PRIVMSG"
+" #ops :Test message"
+"#ops"
+"Test message"
+
 {
     "string": ":pachet!pachet@burninggarden.com PRIVMSG #ops :Test message\n",
     "rules": [
@@ -214,10 +245,25 @@ console.log(match);
         }
     ]
 }
-`````
+```
 
-That makes it easy for us to pluck off rule results of interest (ie, "nick" or
-"command").
+Notice: In the parsed result above, note how there are two instances of rule
+results for the "params" rule. `match.get('params')` will only return the first
+occurring result. If you need an array of all the matching results, use
+`match.getAll()` instead:
+
+```js
+console.log(match.getAll('params'));
+```
+
+The above snippet would print:
+
+```js
+[
+	" #ops :Test message",
+	" :Test message"
+]
+```
 
 
 &nbsp;
@@ -227,30 +273,30 @@ As it turns out, it's possible to embody the formal specification for ABNF
 grammars in ABNF syntax itself. And the authors of RFC-5234 actually set about
 doing it. Here's the ABNF specification for ABNF:
 
-`````abnf
+```abnf
 rulelist       =  1*( rule / (*c-wsp c-nl) )
 
 rule           =  rulename defined-as elements c-nl
-					   ; continues if next line starts
-					   ;  with white space
+                       ; continues if next line starts
+                       ;  with white space
 
 rulename       =  ALPHA *(ALPHA / DIGIT / "-")
 
 defined-as     =  *c-wsp ("=" / "=/") *c-wsp
-					   ; basic rules definition and
-					   ;  incremental alternatives
+                       ; basic rules definition and
+                       ;  incremental alternatives
 
 elements       =  alternation *c-wsp
 
 c-wsp          =  WSP / (c-nl WSP)
 
 c-nl           =  comment / CRLF
-					   ; comment or newline
+                       ; comment or newline
 
 comment        =  ";" *(WSP / VCHAR) CRLF
 
 alternation    =  concatenation
-				  *(*c-wsp "/" *c-wsp concatenation)
+                  *(*c-wsp "/" *c-wsp concatenation)
 
 concatenation  =  repetition *(1*c-wsp repetition)
 
@@ -259,49 +305,49 @@ repetition     =  [repeat] element
 repeat         =  1*DIGIT / (*DIGIT "*" *DIGIT)
 
 element        =  rulename / group / option /
-				  char-val / num-val / prose-val
+                  char-val / num-val / prose-val
 
 group          =  "(" *c-wsp alternation *c-wsp ")"
 
 option         =  "[" *c-wsp alternation *c-wsp "]"
 
 char-val       =  DQUOTE *(%x20-21 / %x23-7E) DQUOTE
-					   ; quoted string of SP and VCHAR
-					   ;  without DQUOTE
+                       ; quoted string of SP and VCHAR
+                       ;  without DQUOTE
 
 num-val        =  "%" (bin-val / dec-val / hex-val)
 
 bin-val        =  "b" 1*BIT
-				  [ 1*("." 1*BIT) / ("-" 1*BIT) ]
-					   ; series of concatenated bit values
-					   ;  or single ONEOF range
+                  [ 1*("." 1*BIT) / ("-" 1*BIT) ]
+                       ; series of concatenated bit values
+                       ;  or single ONEOF range
 
 dec-val        =  "d" 1*DIGIT
-				  [ 1*("." 1*DIGIT) / ("-" 1*DIGIT) ]
+                  [ 1*("." 1*DIGIT) / ("-" 1*DIGIT) ]
 
 hex-val        =  "x" 1*HEXDIG
-				  [ 1*("." 1*HEXDIG) / ("-" 1*HEXDIG) ]
+                  [ 1*("." 1*HEXDIG) / ("-" 1*HEXDIG) ]
 
 prose-val      =  "<" *(%x20-3D / %x3F-7E) ">"
-					   ; bracketed string of SP and VCHAR
-					   ;  without angles
-					   ; prose description, to be used as
-					   ;  last resort
-`````
+                       ; bracketed string of SP and VCHAR
+                       ;  without angles
+                       ; prose description, to be used as
+                       ;  last resort
+```
 
 What this means is that we can use Heket to parse the formal ABNF grammar
 specification upon which it is based. We can then use the resultant AST to
 determine whether the ABNF specification... written in ABNF... is actually
 valid ABNF.
 
-`````js
+```js
 var spec = Heket.getSpec();
 
-var rules = Heket.parse(spec);
+var abnf_parser = Heket.createParser(spec);
 
-console.log(rules.match(spec) !== null);
+console.log(parser.parse(spec) !== null);
 // Prints "true"; it's valid ABNF!
-`````
+```
 
 Now, honestly, we should hope that the authors of the ABNF specification would
 be capable of embodying their own specification reflexively, so this exercise
@@ -329,7 +375,7 @@ Heket (or Heqet) was an Egyptian fertility goddess. She was represented as a
 woman with the head of a frog. I don't know what that has to do with parsing
 formal grammars.
 
-`````
+```
 
          +++++++++++++++++++
        ++++         +++   +++
@@ -361,4 +407,4 @@ formal grammars.
        +++++++++++++++++++++               +++++++++++++++++++++++++++++
                +++                         ++++           +++++++++++
 
-`````
+```
