@@ -1,6 +1,8 @@
 # Heket
 #### *An ABNF parser for Node.js*
 
+
+&nbsp;
 ### Table of Contents
 
 1. [Overview](#overview)
@@ -13,6 +15,7 @@
 7. [Where Did The Name Come From?](#where-did-the-name-come-from)
 
 
+&nbsp;
 ### Overview
 
 Heket is a parser for the [ABNF](https://tools.ietf.org/html/rfc5234)
@@ -31,6 +34,7 @@ Actually, it's really two parsers in one:
 `npm install heket`
 
 
+&nbsp;
 ### Basic Usage
 
 Let's say you had a basic ABNF rule:
@@ -62,6 +66,8 @@ console.log(rule.match('baz'));
 // null
 `````
 
+
+&nbsp;
 ### Rule Matching
 
 The above examples were pretty trivial; they just checked for matches against
@@ -111,6 +117,8 @@ console.log(rules.match(input));
 
 `````
 
+
+&nbsp;
 ### Practical example: IRC
 
 The following snippet...
@@ -206,6 +214,7 @@ console.log(match);
 `````
 
 
+&nbsp;
 ### Impractical Example: ABNF
 
 As it turns out, it's possible to embody the formal specification for ABNF
@@ -298,8 +307,7 @@ is mostly useful as a demonstration of Heket's accurate implementation than
 anything else. Still, it's an interesting mind game.
 
 
-
-
+&nbsp;
 ### Why Did You Write This?
 
 I needed a general-purpose ABNF parser in order to develop a better IRCD.
@@ -312,6 +320,7 @@ performant to generate ASTs for every inbound message at runtime remains to be
 seen :]
 
 
+&nbsp;
 ### Where Did the Name Come From?
 
 Heket (or Heqet) was an Egyptian fertility goddess. She was represented as a
