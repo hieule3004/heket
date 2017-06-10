@@ -4,48 +4,48 @@ var
 
 
 function parseOneQuotedString(test) {
-	test.expect(5);
+	test.expect(7);
 
 	WithQuotedString: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = "xxx"
 		`);
 
-		let matching_result = rules.match('xxx');
+		let match = parser.parse('xxx');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'xxx',
 			rules:  [ ]
 		});
 
-		let non_matching_result = rules.match('xxxy');
+		let non_match = parser.parse('xxxy');
 
-		test.equals(non_matching_result, null);
+		test.equals(non_match, null);
 	}
 
 	WithVaryingCase: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = "xXx"
 		`);
 
-		let matching_result = rules.match('XxX');
+		let match = parser.parse('XxX');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'XxX',
 			rules:  [ ]
 		});
 	}
 
 	WithRule: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = bar
 			bar = baz
 			baz = "xxx"
 		`);
 
-		let matching_result = rules.match('xxx');
+		let match = parser.parse('xxx');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'xxx',
 			rules:  [
 				{
@@ -55,16 +55,19 @@ function parseOneQuotedString(test) {
 						{
 							rule_name: 'baz',
 							string: 'xxx',
-							rules: { }
+							rules: [ ]
 						}
 					]
 				}
 			]
 		});
 
-		let non_matching_result = rules.match('xx');
+		test.equals(match.get('bar'), 'xxx');
+		test.equals(match.get('baz'), 'xxx');
 
-		test.equals(non_matching_result, null);
+		let non_match = parser.parse('xx');
+
+		test.equals(non_match, null);
 	}
 
 	test.done();
@@ -72,18 +75,18 @@ function parseOneQuotedString(test) {
 
 function parseTwoQuotedStrings(test) {
 
-	test.expect(6);
+	test.expect(10);
 
 	TwoRules: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = bar baz
 			bar = "bar"
 			baz = "baz"
 		`);
 
-		let matching_result = rules.match('barbaz');
+		let match = parser.parse('barbaz');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'barbaz',
 			rules:  [
 				{
@@ -99,20 +102,23 @@ function parseTwoQuotedStrings(test) {
 			]
 		});
 
-		let non_matching_result = rules.match('bar');
+		test.equals(match.get('bar'), 'bar');
+		test.equals(match.get('baz'), 'baz');
 
-		test.equals(non_matching_result, null);
+		let non_match = parser.parse('bar');
+
+		test.equals(non_match, null);
 	}
 
 	RuleAndQuotedString: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = bar "baz"
 			bar = "bar"
 		`);
 
-		let matching_result = rules.match('barbaz');
+		let match = parser.parse('barbaz');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'barbaz',
 			rules:  [
 				{
@@ -123,27 +129,31 @@ function parseTwoQuotedStrings(test) {
 			]
 		});
 
-		let non_matching_result = rules.match('foobaz');
+		test.equals(match.get('bar'), 'bar');
 
-		test.equals(non_matching_result, null);
+		let non_match = parser.parse('foobaz');
+
+		test.equals(non_match, null);
 	}
 
 	RuleAndQuotedStringAlternatives: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = bar / "baz"
 			bar = "bar"
 		`);
 
-		let matching_result = rules.match('baz');
+		let match = parser.parse('baz');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'baz',
 			rules:  [ ]
 		});
 
-		let non_matching_result = rules.match('barbaz');
+		test.equals(match.get('baz'), null);
 
-		test.equals(non_matching_result, null);
+		let non_match = parser.parse('barbaz');
+
+		test.equals(non_match, null);
 	}
 
 	test.done();
@@ -154,17 +164,17 @@ function parseThreeQuotedStrings(test) {
 }
 
 function parseOptional(test) {
-	test.expect(2);
+	test.expect(5);
 
 	OptionalQuotedString: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = bar ["baz"]
 			bar = "bar"
 		`);
 
-		let matching_result = rules.match('bar');
+		let match = parser.parse('bar');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'bar',
 			rules:  [
 				{
@@ -174,18 +184,20 @@ function parseOptional(test) {
 				}
 			]
 		});
+
+		test.equals(match.get('bar'), 'bar');
 	}
 
 	OptionalRule: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = bar [baz]
 			bar = "bar"
 			baz = "baz"
 		`);
 
-		let matching_result = rules.match('barbaz');
+		let match = parser.parse('barbaz');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'barbaz',
 			rules:  [
 				{
@@ -200,60 +212,63 @@ function parseOptional(test) {
 				}
 			]
 		});
+
+		test.equals(match.get('bar'), 'bar');
+		test.equals(match.get('baz'), 'baz');
 	}
 
 	test.done();
 }
 
 function parseRepeats(test) {
-	test.expect(5);
+	test.expect(7);
 
 	SimpleRepeat: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = 3"bar"
 		`);
 
 		let input = 'barbarbar';
 
-		let matching_result = rules.match(input);
+		let match = parser.parse(input);
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: input,
 			rules:  [ ]
 		});
 
-		let non_matching_result = rules.match('barbar');
+		let non_match = parser.parse('barbar');
 
-		test.equals(non_matching_result, null);
+		test.equals(non_match, null);
 	}
 
 	RepeatWithBacktracking: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = 1*6"foo" "foobar"
 		`);
 
-		let matching_result = rules.match('foofoofoobar');
+		let match = parser.parse('foofoofoobar');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'foofoofoobar',
 			rules:  [ ]
 		});
 
-		let non_matching_result = rules.match('foobar');
+		let non_match = parser.parse('foobar');
 
-		test.equals(non_matching_result, null);
+		test.equals(non_match, null);
 	}
 
 	RepeatWithNoMaxLimit: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = 1*( bar / baz )
 			bar = "bar"
 			baz = "baz"
 		`);
 
-		let matching_result = rules.match('bazbarbarbazbazbazbarbar');
+		let match = parser.parse('bazbarbarbazbazbazbarbar');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'bazbarbarbazbazbazbarbar',
 			rules:  [
 				{ rule_name: 'baz', string: 'baz', rules: [ ] },
@@ -266,6 +281,20 @@ function parseRepeats(test) {
 				{ rule_name: 'bar', string: 'bar', rules: [ ] }
 			]
 		});
+
+		test.deepEqual(match.getAll('bar'), [
+			'bar',
+			'bar',
+			'bar',
+			'bar'
+		]);
+
+		test.deepEqual(match.getAll('baz'), [
+			'baz',
+			'baz',
+			'baz',
+			'baz'
+		]);
 	}
 
 	test.done();
@@ -275,54 +304,54 @@ function parseNumeric(test) {
 	test.expect(6);
 
 	SimpleNumerics: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = %d97 %d98 %d99 ; some comment here
 		`);
 
-		let matching_result = rules.match('abc');
+		let match = parser.parse('abc');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'abc',
 			rules:  [ ]
 		});
 
-		let non_matching_result = rules.match('ABC');
+		let non_match = parser.parse('ABC');
 
-		test.equals(non_matching_result, null);
+		test.equals(non_match, null);
 	}
 
 	NumericRange: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = 3%d97-99
 		`);
 
-		let matching_result = rules.match('abc');
+		let match = parser.parse('abc');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'abc',
 			rules:  [ ]
 		});
 
-		let non_matching_result = rules.match('ac');
+		let non_match = parser.parse('ac');
 
-		test.equals(non_matching_result, null);
+		test.equals(non_match, null);
 	}
 
 	NumericConcatenation: {
-		let rules = Heket.parse(`
+		let parser = Heket.createParser(`
 			foo = %d97.99.98
 		`);
 
-		let matching_result = rules.match('acb');
+		let match = parser.parse('acb');
 
-		test.deepEqual(matching_result, {
+		test.deepEqual(match.getRawResult(), {
 			string: 'acb',
 			rules:  [ ]
 		});
 
-		let non_matching_result = rules.match('abc');
+		let non_match = parser.parse('abc');
 
-		test.equals(non_matching_result, null);
+		test.equals(non_match, null);
 	}
 
 	test.done();

@@ -7,9 +7,9 @@ function testABNFSpec(test) {
 	test.expect(1);
 
 	var
-		spec  = Heket.getSpec(),
-		rules = Heket.parse(spec),
-		match = rules.match(spec);
+		spec   = Heket.getSpec(),
+		parser = Heket.createParser(spec),
+		match  = parser.parse(spec);
 
 	test.ok(match !== null);
 
