@@ -2,14 +2,15 @@ var
 	Parser    = require('./lib/parser'),
 	RulesList = require('./lib/rules-list'),
 	Core      = require('./lib/core'),
-	FS        = require('fs');
+	FS        = require('fs'),
+	Path      = require('path');
 
 function createParser(abnf_string, rules_list) {
 	return Parser.fromString(abnf_string, rules_list);
 }
 
 function readFile(filename) {
-	var path = `./abnf/${filename}.abnf`;
+	var path = Path.resolve(__dirname, `./abnf/${filename}.abnf`);
 
 	return FS.readFileSync(path, 'utf8');
 }
