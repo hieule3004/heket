@@ -32,20 +32,20 @@ function multilineAlternatives(test) {
 		baz =  "baz"
 	`);
 
-	console.log(parser.rule.ast);
-
 	var match = parser.parse('baz');
-
 
 	test.deepEqual(match.getRawResult(), {
 		string: 'baz',
 		rules:  [
 			{
 				rule_name: 'baz',
+				string: 'baz',
 				rules: [ ]
 			}
 		]
 	});
+
+	test.done();
 }
 
 module.exports = {
