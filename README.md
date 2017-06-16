@@ -1,4 +1,4 @@
-# Heket
+# Heket 🐸
 #### *An ABNF parser / unparser generator for Node.js*
 
 
