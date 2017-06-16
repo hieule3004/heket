@@ -141,14 +141,14 @@ value for the specified rule. For instance:
 
 ```js
 var parser = Heket.createParser(`
-	foo = 1*bar
-	bar = "x"
+    foo = 1*bar
+    bar = "x"
 `);
 
 var match = parser.parse('xxxxx');
 
 while (let next_result = match.getNext('bar')) {
-	console.log(next_result);
+    console.log(next_result);
 }
 ```
 
@@ -398,20 +398,20 @@ it will prompt you to supply it with the value of that rule, like so:
 ```js
 // Like createParser(), createUnparser() accepts an ABNF string:
 var unparser = Heket.createUnparser(`
-	foo = bar baz
-	bar = "bar"
-	baz = "baz"
+    foo = bar baz
+    bar = "bar"
+    baz = "baz"
 `);
 
-var string = unparser.unparse(function getValueForRule(rule_name, index) {
-	switch (rule_name) {
-		case 'bar':
-			return 'bar';
-		case 'baz':
-			return 'baz';
-		default:
-			return null;
-	}
+var string = unparser.unparse(function(rule_name, index) {
+    switch (rule_name) {
+        case 'bar':
+            return 'bar';
+        case 'baz':
+            return 'baz';
+        default:
+            return null;
+    }
 });
 
 console.log(string);
@@ -429,20 +429,20 @@ dealing with, say, an array of strings:
 
 ```js
 var unparser = Heket.createUnparser(`
-	foo = 1*bar [baz] wat
-	bar = "bar"
-	baz = "baz"
-	wat = "wat"
+    foo = 1*bar [baz] wat
+    bar = "bar"
+    baz = "baz"
+    wat = "wat"
 `);
 
 var rule_values = {
-	bar: ['bar', 'bar', 'bar', 'bar', 'bar'],
-	baz: [ ],
-	wat: ['wat']
+    bar: ['bar', 'bar', 'bar', 'bar', 'bar'],
+    baz: [ ],
+    wat: ['wat']
 };
 
-var string = unparser.unparse(function getValueForRule(rule_name, index) {
-	return rule_values[rule_name][index];
+var string = unparser.unparse(function(rule_name, index) {
+    return rule_values[rule_name][index];
 });
 
 console.log(string);
@@ -456,16 +456,16 @@ rule whenever the unparser encounters it. To modify the above example:
 
 ```js
 var unparser = Heket.createUnparser(`
-	foo = 1*bar [baz] wat
-	bar = "bar"
-	baz = "baz"
-	wat = "wat"
+    foo = 1*bar [baz] wat
+    bar = "bar"
+    baz = "baz"
+    wat = "wat"
 `);
 
 var rule_values = {
-	bar: ['bar', 'bar', 'bar', 'bar', 'bar'],
-	baz: [ ],
-	wat: ['wat']
+    bar: ['bar', 'bar', 'bar', 'bar', 'bar'],
+    baz: [ ],
+    wat: ['wat']
 };
 
 var string = unparser.unparse(rule_values);
@@ -499,27 +499,27 @@ rule. For instance:
 
 ```js
 var unparser = Heket.createUnparser(`
-	foo = bar
-	bar = "bar"
+    foo = bar
+    bar = "bar"
 `);
 
 var string;
 
 try {
-	string = unparser.unparse(function getValueForRule(rule_name) {
-		switch (rule_name) {
-			case 'bar':
-				// Notice how this is invalid per the ABNF spec above:
-				return 'baz';
+    string = unparser.unparse(function(rule_name) {
+        switch (rule_name) {
+            case 'bar':
+                // Notice how this is invalid per the ABNF spec above:
+                return 'baz';
 
-			default:
-				return null;
-		}
-	});
+            default:
+                return null;
+        }
+    });
 } catch (error) {
-	console.log(error instanceof Heket.InvalidRuleValueError);
-	console.log(error.getRuleName());
-	console.log(error.getRuleValue());
+    console.log(error instanceof Heket.InvalidRuleValueError);
+    console.log(error.getRuleName());
+    console.log(error.getRuleValue());
 }
 ```
 
@@ -538,21 +538,21 @@ value for a required rule. For instance:
 
 ```js
 var unparser = Heket.createUnparser(`
-	foo = bar
-	bar = "bar"
+    foo = bar
+    bar = "bar"
 `);
 
 var string;
 
 try {
-	string = unparser.unparse(function getValueForRule(rule_name) {
-		// Return null, no matter what, even though "bar" is required.
-		return null;
-	});
+    string = unparser.unparse(function(rule_name) {
+        // Return null, no matter what, even though "bar" is required.
+        return null;
+    });
 } catch (error) {
-	console.log(error instanceof Heket.MissingRuleValueError);
-	console.log(error.getRuleName());
-	console.log(error.getRuleValue());
+    console.log(error instanceof Heket.MissingRuleValueError);
+    console.log(error.getRuleName());
+    console.log(error.getRuleValue());
 }
 ```
 
@@ -573,18 +573,18 @@ the associated parser, via `parser.getUnparser()`.
 
 ```js
 var parser = Heket.createParser(`
-	foo = 1*bar [baz] wat
-	bar = "bar"
-	baz = "baz"
-	wat = "wat"
+    foo = 1*bar [baz] wat
+    bar = "bar"
+    baz = "baz"
+    wat = "wat"
 `);
 
 var match = parser.parse('barbarbarbarbarbazwat');
 
 var unparser = parser.getUnparser();
 
-var output = unparser.unparse(function getValueForRule(rule_name, index) {
-	return match.getNext(rule_name);
+var output = unparser.unparse(function(rule_name, index) {
+    return match.getNext(rule_name);
 });
 
 console.log(input === output);
