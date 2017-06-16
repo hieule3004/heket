@@ -5,8 +5,16 @@ var
 	FS        = require('fs'),
 	Path      = require('path');
 
+var
+	InvalidRuleValueError = require('./lib/errors/invalid-rule-value'),
+	MissingRuleValueError = require('./lib/errors/missing-rule-value');
+
 function createParser(abnf_string, rules_list) {
 	return Parser.fromString(abnf_string, rules_list);
+}
+
+function createUnparser(abnf_string, rules_list) {
+	return createParser(abnf_string, rules_list).getUnparser();
 }
 
 function readFile(filename) {
@@ -26,5 +34,8 @@ Core.setRulesList(core_rules);
 
 module.exports = {
 	createParser,
-	getSpec
+	createUnparser,
+	getSpec,
+	InvalidRuleValueError,
+	MissingRuleValueError
 };
