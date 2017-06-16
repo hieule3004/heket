@@ -17,17 +17,17 @@ function createUnparser(abnf_string, rules_list) {
 	return createParser(abnf_string, rules_list).getUnparser();
 }
 
-function readFile(filename) {
+function readABNFFile(filename) {
 	var path = Path.resolve(__dirname, `./abnf/${filename}.abnf`);
 
 	return FS.readFileSync(path, 'utf8');
 }
 
 function getSpec() {
-	return readFile('abnf');
+	return readABNFFile('abnf');
 }
 
-var core_rules = RulesList.fromString(readFile('core-rules'));
+var core_rules = RulesList.fromString(readABNFFile('core-rules'));
 
 Core.setRulesList(core_rules);
 
@@ -35,6 +35,7 @@ Core.setRulesList(core_rules);
 module.exports = {
 	createParser,
 	createUnparser,
+	readABNFFile,
 	getSpec,
 	InvalidRuleValueError,
 	MissingRuleValueError

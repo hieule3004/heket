@@ -122,8 +122,22 @@ function unparseWithInvalidRule(test) {
 	test.done();
 }
 
+function parseAndUnparse(test) {
+	var
+		spec     = Heket.readABNFFile('irc'),
+		parser   = Heket.createParser(spec),
+		input    = ':pachet!pachet@burninggarden.com PRIVMSG #ops :Test message\n',
+		match    = parser.parse(input),
+		unparser = parser.getUnparser(),
+		output   = unparser.unparse(match.getNext);
+
+	test.equals(input, output);
+	test.done();
+}
+
 module.exports = {
 	unparseValid,
 	unparseWithMissingRule,
-	unparseWithInvalidRule
+	unparseWithInvalidRule,
+	parseAndUnparse
 };
