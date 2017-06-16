@@ -27,7 +27,7 @@ specification, written in Node.js.
 It allows you to create custom parsers for formal grammars written in ABNF,
 and then apply those parsers to input text to see if it matches your rules.
 
-**Heket** also allows you to create *unparsers*, which do the opposite of a parser:
+You can also use it to create *unparsers*, which do the opposite of a parser:
 given an ABNF grammar, the unparser will serialize a string using the rule
 values that you supply to it.
 
