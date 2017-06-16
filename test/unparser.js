@@ -4,7 +4,7 @@ var
 
 
 function unparseValid(test) {
-	test.expect(1);
+	test.expect(9);
 
 	var spec = `
 		foo = 1*bar *(" " baz) [wat]
@@ -19,10 +19,11 @@ function unparseValid(test) {
 		bar_index = 0,
 		baz_index = 0;
 
-	var string = unparser.unparse(function getRuleValue(rule_name) {
+	var string = unparser.unparse(function getRuleValue(rule_name, index) {
 		switch (rule_name) {
 			case 'bar':
 				if (bar_index < 5) {
+					test.equals(bar_index, index);
 					bar_index++;
 					return 'bam';
 				}
@@ -31,6 +32,7 @@ function unparseValid(test) {
 
 			case 'baz':
 				if (baz_index < 3) {
+					test.equals(baz_index, index);
 					baz_index++;
 					return 'bal';
 				}
@@ -135,9 +137,30 @@ function parseAndUnparse(test) {
 	test.done();
 }
 
+function unparseWithRuleMap(test) {
+	var spec = `
+		foo = 1*bar *(" " baz) [wat]
+		bar = "bam"
+		baz = "bal"
+		wat = "WAT"
+	`;
+
+	var unparser = Heket.createUnparser(spec);
+
+	var string = unparser.unparse({
+		bar: ['bam', 'bam', 'bam', 'bam', 'bam'],
+		baz: ['bal', 'bal', 'bal'],
+		wat: [ ]
+	});
+
+	test.equals(string, 'bambambambambam bal bal bal');
+	test.done();
+}
+
 module.exports = {
 	unparseValid,
 	unparseWithMissingRule,
 	unparseWithInvalidRule,
-	parseAndUnparse
+	parseAndUnparse,
+	unparseWithRuleMap
 };
