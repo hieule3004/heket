@@ -7,18 +7,20 @@
 
 1. [Overview](#overview)
 2. [Installation](#installation)
-3. [Basic Usage](#basic-usage)
+3. [Basic Parsing](#basic-parsing)
 4. [Rule matching](#rule-matching)
 5. [Practical Example: IRC](#practical-example-irc)
-5. [Impractical Example: ABNF](#impractical-example-abnf)
-6. [Why Did You Write This?](#why-did-you-write-this)
-7. [Where Did The Name Come From?](#where-did-the-name-come-from)
+6. [Impractical Example: ABNF](#impractical-example-abnf)
+7. [Unparsing](#unparsing)
+8. [Parsing + Unparsing](#parsing-unparsing)
+9. [Why Did You Write This?](#why-did-you-write-this)
+10. [Where Did The Name Come From?](#where-did-the-name-come-from)
 
 
 &nbsp;
 ### Overview
 
-Heket is a parser generator for the [ABNF](https://tools.ietf.org/html/rfc5234)
+**Heket** is a parser generator for the [ABNF](https://tools.ietf.org/html/rfc5234)
 specification, written in Node.js.
 
 It allows you to create custom parsers for formal grammars written in ABNF,
@@ -32,13 +34,13 @@ and then apply those parsers to input text to see if it matches your rules.
 
 
 &nbsp;
-### Basic Usage
+### Basic Parsing
 
 Let's say you had a basic ABNF rule:
 
 `a = "foo" / "bar"`
 
-You can use Heket to produce a custom parser from this simple grammar via the
+You can use **Heket** to produce a custom parser from this simple grammar via the
 following:
 
 ```js
@@ -72,14 +74,14 @@ null
 ### Rule Matching
 
 The above examples were pretty trivial; they just checked for matches against
-basic strings. But Heket also allows you to unpack rule values from more complex
+basic strings. But **Heket** also allows you to unpack rule values from more complex
 grammar definitions. The following snippet...
 
 ```js
 var parser = Heket.createParser(`
     foo        = *(baz / bar) wat
     baz        = nested-baz
-    nested-baz = "baz"
+    nested-baz = "xxx"
     bar        = "yyy"
     wat        = [*"z"]
 `);
@@ -130,6 +132,32 @@ console.log(match.getRawResult());
         }
     ]
 }
+```
+
+Since all of the match values for each rule are stored internally as an array,
+you can also use the convenience method `match.getNext()` to retrieve the next
+value for the specified rule. For instance:
+
+```js
+var parser = Heket.createParser(`
+	foo = 1*bar
+	bar = "x"
+`);
+
+var match = parser.parse('xxxxx');
+
+while (let next_result = match.getNext('bar')) {
+	console.log(next_result);
+}
+```
+
+The above would print:
+```
+"x"
+"x"
+"x"
+"x"
+"x"
 ```
 
 
@@ -335,7 +363,7 @@ prose-val      =  "<" *(%x20-3D / %x3F-7E) ">"
                        ;  last resort
 ```
 
-What this means is that we can use Heket to parse the formal ABNF grammar
+What this means is that we can use **Heket** to parse the formal ABNF grammar
 specification upon which it is based. We can then use the resultant AST to
 determine whether the ABNF specification... written in ABNF... is actually
 valid ABNF.
@@ -351,8 +379,223 @@ console.log(parser.parse(spec) !== null);
 
 Now, honestly, we should hope that the authors of the ABNF specification would
 be capable of embodying their own specification reflexively, so this exercise
-is mostly useful as a demonstration of Heket's accurate implementation than
+is mostly useful as a demonstration of **Heket's** accurate implementation than
 anything else. Still, it's an interesting mind game.
+
+
+&nbsp;
+### Unparsing
+
+In addition to allowing you to create generate custom parsers for ABNF-based
+grammars, **Heket** also lets you *unparse* a series of tokens (read: serialize
+a string based on the rules defined in your grammar).
+
+The way this works is: **Heket** will walk over each node in the AST used to
+represent your grammar. Whenever it encounters a node linking to a named rule,
+it will prompt you to supply it with the value of that rule, like so:
+
+```js
+// Like createParser(), createUnparser() accepts an ABNF string:
+var unparser = Heket.createUnparser(`
+	foo = bar baz
+	bar = "bar"
+	baz = "baz"
+`);
+
+var string = unparser.unparse(function getValueForRule(rule_name, index) {
+	switch (rule_name) {
+		case 'bar':
+			return 'bar';
+		case 'baz':
+			return 'baz';
+		default:
+			return null;
+	}
+});
+
+console.log(string);
+```
+
+The above would print `"barbaz"`.
+
+Notice how the only argument passed to `unparser.unparse()` is a function that
+receives two arguments: the name of the rule the unparser is requesting a value
+for, and a numeric index. The numeric index represents the number of times that
+the unparser has requested a value for that same rule name.
+
+The index argument makes it easy to hand values back to the parser if you're
+dealing with, say, an array of strings:
+
+```js
+var unparser = Heket.createUnparser(`
+	foo = 1*bar [baz] wat
+	bar = "bar"
+	baz = "baz"
+	wat = "wat"
+`);
+
+var rule_values = {
+	bar: ['bar', 'bar', 'bar', 'bar', 'bar'],
+	baz: [ ],
+	wat: ['wat']
+};
+
+var string = unparser.unparse(function getValueForRule(rule_name, index) {
+	return rule_values[rule_name][index];
+});
+
+console.log(string);
+```
+
+The above would print `"barbarbarbarbarwat"`.
+
+**NOTE**: You can also pass an object to `unparser.unparse()`, whose keys are
+rule names, and whose values are arrays of strings to use as values for that
+rule whenever the unparser encounters it. To modify the above example:
+
+```js
+var unparser = Heket.createUnparser(`
+	foo = 1*bar [baz] wat
+	bar = "bar"
+	baz = "baz"
+	wat = "wat"
+`);
+
+var rule_values = {
+	bar: ['bar', 'bar', 'bar', 'bar', 'bar'],
+	baz: [ ],
+	wat: ['wat']
+};
+
+var string = unparser.unparse(rule_values);
+
+console.log(string);
+```
+
+Again, same result as before: `"barbarbarbarbarwat"`.
+
+
+&nbsp;
+### Errors During Unparsing
+Sometimes when you try to unparse something, the values you supply to the
+unparser won't match the rules they're meant to fill. Or, the unparser will
+expect a value for a rule, but you fail to give it one, so it will be unable
+to proceed. In each of these cases, **Heket** will throw a specific type of error
+to signal that the unparsing step failed.
+
+These error types also have some additional convenience methods to help you
+track down the source of unparsing issues:
+
+`error.getRuleName()`
+`error.getRuleValue()`
+
+
+#### InvalidRuleValueError
+
+**Heket** will throw an `InvalidRuleValueError` when the value you return for
+a specific rule during unparsing doesn't match the ABNF definition for that
+rule. For instance:
+
+```js
+var unparser = Heket.createUnparser(`
+	foo = bar
+	bar = "bar"
+`);
+
+var string;
+
+try {
+	string = unparser.unparse(function getValueForRule(rule_name) {
+		switch (rule_name) {
+			case 'bar':
+				// Notice how this is invalid per the ABNF spec above:
+				return 'baz';
+
+			default:
+				return null;
+		}
+	});
+} catch (error) {
+	console.log(error instanceof Heket.InvalidRuleValueError);
+	console.log(error.getRuleName());
+	console.log(error.getRuleValue());
+}
+```
+
+The above would print:
+```
+true
+"bar"
+"baz"
+```
+
+
+#### MissingRuleValueError
+
+**Heket** will throw a `MissingRuleValueError` when the unparser isn't given a
+value for a required rule. For instance:
+
+```js
+var unparser = Heket.createUnparser(`
+	foo = bar
+	bar = "bar"
+`);
+
+var string;
+
+try {
+	string = unparser.unparse(function getValueForRule(rule_name) {
+		// Return null, no matter what, even though "bar" is required.
+		return null;
+	});
+} catch (error) {
+	console.log(error instanceof Heket.MissingRuleValueError);
+	console.log(error.getRuleName());
+	console.log(error.getRuleValue());
+}
+```
+
+The above would print:
+```
+true
+"bar"
+null
+```
+
+
+&nbsp;
+### Parsing + Unparsing
+
+Where things get fun is when you combine parsers with unparsers. By the way,
+you can also obtain a reference to the unparser for an ABNF declaration from
+the associated parser, via `parser.getUnparser()`.
+
+```js
+var parser = Heket.createParser(`
+	foo = 1*bar [baz] wat
+	bar = "bar"
+	baz = "baz"
+	wat = "wat"
+`);
+
+var match = parser.parse('barbarbarbarbarbazwat');
+
+var unparser = parser.getUnparser();
+
+var output = unparser.unparse(function getValueForRule(rule_name, index) {
+	return match.getNext(rule_name);
+});
+
+console.log(input === output);
+// true
+```
+
+You can also just pass `match.getNext()` to `unparser.unparse()` directly
+(don't worry, the context is bound for you):
+
+```js
+var output = unparser.unparse(match.getNext);
+```
 
 
 &nbsp;
