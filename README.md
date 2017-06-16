@@ -12,9 +12,10 @@
 5. [Practical Example: IRC](#practical-example-irc)
 6. [Impractical Example: ABNF](#impractical-example-abnf)
 7. [Unparsing](#unparsing)
-8. [Parsing + Unparsing](#parsing-unparsing)
-9. [Why Did You Write This?](#why-did-you-write-this)
-10. [Where Did The Name Come From?](#where-did-the-name-come-from)
+8. [Errors During Unparsing](#errors-during-unparsing)
+9. [Parsing + Unparsing](#parsing-unparsing)
+10. [Why Did You Write This?](#why-did-you-write-this)
+11. [Where Did The Name Come From?](#where-did-the-name-come-from)
 
 
 &nbsp;
