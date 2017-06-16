@@ -91,7 +91,7 @@ function unparseWithInvalidRule(test) {
 		bar_count = 0;
 
 	try {
-		unparser.unparse(function getRuleValue(rule_name) {
+		let res = unparser.unparse(function getRuleValue(rule_name) {
 			switch (rule_name) {
 				case 'bar':
 					if (bar_count < 2) {
@@ -109,6 +109,10 @@ function unparseWithInvalidRule(test) {
 
 			}
 		});
+
+		console.log(res);
+
+		test.ok(false, 'We should not be here');
 	} catch (error) {
 		test.ok(error instanceof Heket.InvalidRuleValueError);
 		test.ok(error.getRuleName() === 'baz');
