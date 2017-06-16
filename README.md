@@ -487,8 +487,8 @@ to signal that the unparsing step failed.
 These error types also have some additional convenience methods to help you
 track down the source of unparsing issues:
 
-`error.getRuleName()`
-`error.getRuleValue()`
+- `error.getRuleName()`
+- `error.getRuleValue()`
 
 
 #### InvalidRuleValueError
