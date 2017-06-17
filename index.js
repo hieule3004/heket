@@ -37,11 +37,11 @@
  * consumers an easy API for fetching values from the results list by rule name.
  *
  *
- * 6. RulesList (lib/rules-list)
+ * 6. RuleList (lib/rule-list)
  *
- * The RulesList class is a collection of related rules. By creating an external
+ * The RuleList class is a collection of related rules. By creating an external
  * linkage between all of the rules in a top-level ABNF specification, the
- * RulesList enables each rule to reference any other rule in the specification.
+ * RuleList enables each rule to reference any other rule in the specification.
  * You can also append rules from other specifications, as well.
  *
  *
@@ -56,36 +56,48 @@
 
 
 var
-	Parser    = require('./lib/parser'),
-	RulesList = require('./lib/rules-list'),
-	Core      = require('./lib/core'),
-	FS        = require('fs'),
-	Path      = require('path');
+	Parser   = require('./lib/parser'),
+	RuleList = require('./lib/rule-list'),
+	Core     = require('./lib/core'),
+	FS       = require('fs'),
+	Path     = require('path');
 
 var
 	InvalidRuleValueError = require('./lib/errors/invalid-rule-value'),
 	MissingRuleValueError = require('./lib/errors/missing-rule-value');
 
 /**
- * Creates a parser for the specified ABNF string and (optional) rules list.
+ * Creates a parser for the specified ABNF string and (optional) rule list.
  *
  * @param   {string} abnf_string
- * @param   {lib/rules-list|void} rules_list
+ * @param   {lib/rule-list|void} rule_list
  * @returns {lib/parser}
  */
-function createParser(abnf_string, rules_list) {
-	return Parser.fromString(abnf_string, rules_list);
+function createParser(abnf_string, rule_list) {
+	return Parser.fromString(abnf_string, rule_list);
 }
 
 /**
- * Creates an unparser for the specified ABNF string and (optional) rules list.
+ * Creates an unparser for the specified ABNF string and (optional) rule list.
  *
  * @param   {string} abnf_string
- * @param   {lib/rules-list|void} rules_list
+ * @param   {lib/rule-list|void} rule_list
  * @returns {lib/unparser}
  */
-function createUnparser(abnf_string, rules_list) {
-	return createParser(abnf_string, rules_list).getUnparser();
+function createUnparser(abnf_string, rule_list) {
+	return createParser(abnf_string, rule_list).getUnparser();
+}
+
+/**
+ * Creates a rule list from the specified ABNF string and (optional) external
+ * rule list.
+ *
+ * @param   {string} abnf_string
+ * @param   {lib/rule-list|void} rule_list
+ * @returns {lib/rule-list}
+ */
+function createRuleList(abnf_string, rule_list) {
+	return RuleList.fromString(abnf_string, rule_list);
 }
 
 /**
@@ -115,14 +127,15 @@ function getSpec() {
 // These core rules are themselves embodied via ABNF, which requires that
 // they live in a singleton and enumerated from outside the other classes
 // in this module in order to avoid circular dependencies.
-var core_rules = RulesList.fromString(readABNFFile('core-rules'));
+var core_rules = RuleList.fromString(readABNFFile('core-rules'));
 
-Core.setRulesList(core_rules);
+Core.setRuleList(core_rules);
 
 
 module.exports = {
 	createParser,
 	createUnparser,
+	createRuleList,
 	readABNFFile,
 	getSpec,
 	InvalidRuleValueError,
