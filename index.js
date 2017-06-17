@@ -50,13 +50,13 @@
  * Like the Parser, but in reverse. This class uses its corresponding ABNF AST
  * to produce an output string matching the grammar. It will prompt the consumer
  * for the value of any rule name that it encounters as it traverses the AST.
- *
  */
 
 
 
 var
 	Parser   = require('./lib/parser'),
+	Rule     = require('./lib/rule'),
 	RuleList = require('./lib/rule-list'),
 	Core     = require('./lib/core'),
 	FS       = require('fs'),
@@ -67,25 +67,35 @@ var
 	MissingRuleValueError = require('./lib/errors/missing-rule-value');
 
 /**
- * Creates a parser for the specified ABNF string and (optional) rule list.
+ * Creates a parser for either:
+ * - the specified ABNF string and (optional) rule list, or
+ * - an existing rule
  *
- * @param   {string} abnf_string
+ * @param   {string|lib/rule} string_or_rule
  * @param   {lib/rule-list|void} rule_list
  * @returns {lib/parser}
  */
-function createParser(abnf_string, rule_list) {
-	return Parser.fromString(abnf_string, rule_list);
+function createParser(string_or_rule, rule_list) {
+	if (string_or_rule instanceof Rule) {
+		return Parser.fromRule(string_or_rule);
+	} else if (typeof string_or_rule === 'string') {
+		return Parser.fromString(string_or_rule, rule_list);
+	} else {
+		throw new Error('Invalid value passed to createParser()');
+	}
 }
 
 /**
- * Creates an unparser for the specified ABNF string and (optional) rule list.
+ * Creates an unparser for either:
+ * - the specified ABNF string and (optional) rule list, or
+ * - an existing rule
  *
- * @param   {string} abnf_string
+ * @param   {string|lib/rule} string_or_rule
  * @param   {lib/rule-list|void} rule_list
  * @returns {lib/unparser}
  */
-function createUnparser(abnf_string, rule_list) {
-	return createParser(abnf_string, rule_list).getUnparser();
+function createUnparser(string_or_rule, rule_list) {
+	return createParser(string_or_rule, rule_list).getUnparser();
 }
 
 /**
