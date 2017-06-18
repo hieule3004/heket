@@ -357,6 +357,46 @@ function parseNumeric(test) {
 	test.done();
 }
 
+function parseComment(test) {
+	test.expect(3);
+
+	SimpleComment: {
+		let rule_list = Heket.createRuleList(`
+			foo = "bar" ; some comment
+		`);
+
+		let rule = rule_list.getRule('foo');
+
+		test.equals(rule.getComment(), 'some comment');
+	}
+
+	MultilineComment: {
+		let rule_list = Heket.createRuleList(`
+			foo = "bar" ; one line
+			      ; and another line
+		`);
+
+		let rule = rule_list.getRule('foo');
+
+		test.equals(rule.getComment(), 'one line and another line');
+	}
+
+	CommentWithSemicolon: {
+		let rule_list = Heket.createRuleList(`
+			foo = "bar"
+			      ; this is a comment; what a comment it is
+		`);
+
+		let rule = rule_list.getRule('foo');
+
+		test.equals(
+			rule.getComment(),
+			'this is a comment; what a comment it is'
+		);
+	}
+
+	test.done();
+}
 
 module.exports = {
 	parseOneQuotedString,
@@ -364,5 +404,6 @@ module.exports = {
 	parseThreeQuotedStrings,
 	parseOptional,
 	parseRepeats,
-	parseNumeric
+	parseNumeric,
+	parseComment
 };
