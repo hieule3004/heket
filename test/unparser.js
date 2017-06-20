@@ -125,6 +125,8 @@ function unparseWithInvalidRule(test) {
 }
 
 function parseAndUnparse(test) {
+	test.expect(1);
+
 	var
 		spec     = Heket.readABNFFile('irc'),
 		parser   = Heket.createParser(spec),
@@ -138,6 +140,8 @@ function parseAndUnparse(test) {
 }
 
 function unparseWithRuleMap(test) {
+	test.expect(1);
+
 	var spec = `
 		foo = 1*bar *(" " baz) [wat]
 		bar = "bam"
@@ -157,10 +161,34 @@ function unparseWithRuleMap(test) {
 	test.done();
 }
 
+function unparseWithShorthandMap(test) {
+	test.expect(1);
+
+	var spec = `
+		foo = 1*bar *(" " baz) [wat]
+		bar = "bam"
+		baz = "bal"
+		wat = "WAT"
+	`;
+
+	var unparser = Heket.createUnparser(spec);
+
+	var string = unparser.unparse({
+		// Notice how this value is not wrapped in an array:
+		bar: 'bam',
+		baz: ['bal', 'bal', 'bal'],
+		wat: [ ]
+	});
+
+	test.equals(string, 'bam bal bal bal');
+	test.done();
+}
+
 module.exports = {
 	unparseValid,
 	unparseWithMissingRule,
 	unparseWithInvalidRule,
 	parseAndUnparse,
-	unparseWithRuleMap
+	unparseWithRuleMap,
+	unparseWithShorthandMap
 };
