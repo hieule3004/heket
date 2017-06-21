@@ -218,6 +218,22 @@ function unparseWithRepeatingFixedValueRule(test) {
 	test.done();
 }
 
+function unparseWithFixedNumericValueRule(test) {
+	test.expect(1);
+
+	var spec = `
+		foo = bar
+		bar = %x20 ; hex value for space character
+	`;
+
+	var unparser = Heket.createUnparser(spec);
+
+	var string = unparser.unparse();
+
+	test.equals(string, ' ');
+	test.done();
+}
+
 
 module.exports = {
 	unparseValid,
@@ -227,5 +243,6 @@ module.exports = {
 	unparseWithRuleMap,
 	unparseWithShorthandMap,
 	unparseWithFixedValueRule,
-	unparseWithRepeatingFixedValueRule
+	unparseWithRepeatingFixedValueRule,
+	unparseWithFixedNumericValueRule
 };
