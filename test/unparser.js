@@ -93,7 +93,7 @@ function unparseWithInvalidRule(test) {
 		bar_count = 0;
 
 	try {
-		let res = unparser.unparse(function getRuleValue(rule_name) {
+		unparser.unparse(function getRuleValue(rule_name) {
 			switch (rule_name) {
 				case 'bar':
 					if (bar_count < 2) {
@@ -112,8 +112,6 @@ function unparseWithInvalidRule(test) {
 			}
 		});
 
-		console.log(res);
-
 		test.ok(false, 'We should not be here');
 	} catch (error) {
 		test.ok(error instanceof Heket.InvalidRuleValueError);
@@ -130,7 +128,7 @@ function parseAndUnparse(test) {
 	var
 		spec     = Heket.readABNFFile('irc'),
 		parser   = Heket.createParser(spec),
-		input    = ':pachet!pachet@burninggarden.com PRIVMSG #ops :Test message\n',
+		input    = ':pachet!pachet@burninggarden.com PRIVMSG #ops :Test message\r\n',
 		match    = parser.parse(input),
 		unparser = parser.getUnparser(),
 		output   = unparser.unparse(match.getNext);
@@ -184,11 +182,50 @@ function unparseWithShorthandMap(test) {
 	test.done();
 }
 
+function unparseWithFixedValueRule(test) {
+	test.expect(1);
+
+	var spec = `
+		foo = bar baz
+		bar = "one" / "two" ; note the alternatives here, so no fixed value
+		baz = "three"       ; a single quoted string, ie, a fixed value
+	`;
+
+	var unparser = Heket.createUnparser(spec);
+
+	var string = unparser.unparse({
+		bar: 'one'
+	});
+
+	test.equals(string, 'onethree');
+	test.done();
+}
+
+function unparseWithRepeatingFixedValueRule(test) {
+	test.expect(1);
+
+	var spec = `
+		foo = 5*10(bar / baz)
+		bar = "one" / "two" ; note the alternatives here, so no fixed value
+		baz = "three"       ; a single quoted string, ie, a fixed value
+	`;
+
+	var unparser = Heket.createUnparser(spec);
+
+	var string = unparser.unparse();
+
+	test.equals(string, 'threethreethreethreethree');
+	test.done();
+}
+
+
 module.exports = {
 	unparseValid,
 	unparseWithMissingRule,
 	unparseWithInvalidRule,
 	parseAndUnparse,
 	unparseWithRuleMap,
-	unparseWithShorthandMap
+	unparseWithShorthandMap,
+	unparseWithFixedValueRule,
+	unparseWithRepeatingFixedValueRule
 };
