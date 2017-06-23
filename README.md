@@ -791,11 +791,10 @@ console.log(input === output);
 // true
 ```
 
-You can also just pass `match.getNext()` to `unparser.unparse()` directly
-(don't worry, the context is bound for you):
+You can also just pass `match` instances to `unparser.unparse()` directly:
 
 ```js
-var output = unparser.unparse(match.getNext);
+var output = unparser.unparse(match);
 ```
 
 
