@@ -4,7 +4,7 @@ var
 
 
 function parseOneQuotedString(test) {
-	test.expect(7);
+	test.expect(11);
 
 	WithQuotedString: {
 		let parser = Heket.createParser(`
@@ -18,9 +18,13 @@ function parseOneQuotedString(test) {
 			rules:  [ ]
 		});
 
-		let non_match = parser.parse('xxxy');
-
-		test.equals(non_match, null);
+		try {
+			parser.parse('xxxy');
+		} catch (error) {
+			test.ok(error instanceof Heket.InputTooLongError);
+			test.equals(error.getExpectedValue(), 'xxx');
+			test.equals(error.getValue(), 'xxxy');
+		}
 	}
 
 	WithVaryingCase: {
@@ -65,9 +69,13 @@ function parseOneQuotedString(test) {
 		test.equals(match.get('bar'), 'xxx');
 		test.equals(match.get('baz'), 'xxx');
 
-		let non_match = parser.parse('xx');
-
-		test.equals(non_match, null);
+		try {
+			parser.parse('xx');
+		} catch (error) {
+			test.ok(error instanceof Heket.InvalidRuleValueError);
+			test.equals(error.getValue(), 'xx');
+			test.equals(error.getRuleName(), 'bar');
+		}
 	}
 
 	test.done();
@@ -75,7 +83,7 @@ function parseOneQuotedString(test) {
 
 function parseTwoQuotedStrings(test) {
 
-	test.expect(10);
+	test.expect(15);
 
 	TwoRules: {
 		let parser = Heket.createParser(`
@@ -105,9 +113,12 @@ function parseTwoQuotedStrings(test) {
 		test.equals(match.get('bar'), 'bar');
 		test.equals(match.get('baz'), 'baz');
 
-		let non_match = parser.parse('bar');
-
-		test.equals(non_match, null);
+		try {
+			parser.parse('bar');
+		} catch (error) {
+			test.ok(error instanceof Heket.MissingRuleValueError);
+			test.equals(error.getRuleName(), 'baz');
+		}
 	}
 
 	RuleAndQuotedString: {
@@ -131,9 +142,13 @@ function parseTwoQuotedStrings(test) {
 
 		test.equals(match.get('bar'), 'bar');
 
-		let non_match = parser.parse('foobaz');
-
-		test.equals(non_match, null);
+		try {
+			parser.parse('foobaz');
+		} catch (error) {
+			test.ok(error instanceof Heket.InvalidRuleValueError);
+			test.equals(error.getRuleName(), 'bar');
+			test.equals(error.getValue(), 'foobaz');
+		}
 	}
 
 	RuleAndQuotedStringAlternatives: {
@@ -151,9 +166,13 @@ function parseTwoQuotedStrings(test) {
 
 		test.equals(match.get('baz'), null);
 
-		let non_match = parser.parse('barbaz');
-
-		test.equals(non_match, null);
+		try {
+			parser.parse('barbaz');
+		} catch (error) {
+			test.ok(error instanceof Heket.InputTooLongError);
+			test.equals(error.getExpectedValue(), 'bar');
+			test.equals(error.getValue(), 'barbaz');
+		}
 	}
 
 	test.done();
@@ -221,7 +240,7 @@ function parseOptional(test) {
 }
 
 function parseRepeats(test) {
-	test.expect(7);
+	test.expect(11);
 
 	SimpleRepeat: {
 		let parser = Heket.createParser(`
@@ -237,9 +256,13 @@ function parseRepeats(test) {
 			rules:  [ ]
 		});
 
-		let non_match = parser.parse('barbar');
-
-		test.equals(non_match, null);
+		try {
+			parser.parse('barbar');
+		} catch (error) {
+			test.ok(error instanceof Heket.NotEnoughOccurrencesError);
+			test.equals(error.getExpectedCount(), 3);
+			test.equals(error.getActualCount(), 2);
+		}
 	}
 
 	RepeatWithBacktracking: {
@@ -254,9 +277,13 @@ function parseRepeats(test) {
 			rules:  [ ]
 		});
 
-		let non_match = parser.parse('foobar');
-
-		test.equals(non_match, null);
+		try {
+			parser.parse('foobar');
+		} catch (error) {
+			test.ok(error instanceof Heket.InvalidQuotedStringError);
+			test.equals(error.getQuotedString(), 'foobar');
+			test.equals(error.getValue(), 'bar');
+		}
 	}
 
 	RepeatWithNoMaxLimit: {
@@ -301,7 +328,7 @@ function parseRepeats(test) {
 }
 
 function parseNumeric(test) {
-	test.expect(6);
+	test.expect(12);
 
 	SimpleNumerics: {
 		let parser = Heket.createParser(`
@@ -315,9 +342,13 @@ function parseNumeric(test) {
 			rules:  [ ]
 		});
 
-		let non_match = parser.parse('ABC');
-
-		test.equals(non_match, null);
+		try {
+			parser.parse('ABC');
+		} catch (error) {
+			test.ok(error instanceof Heket.NumericValueMismatchError);
+			test.equals(error.getExpectedCharCode(), 97);
+			test.equals(error.getActualCharCode(), 65);
+		}
 	}
 
 	NumericRange: {
@@ -332,9 +363,13 @@ function parseNumeric(test) {
 			rules:  [ ]
 		});
 
-		let non_match = parser.parse('ac');
-
-		test.equals(non_match, null);
+		try {
+			parser.parse('ac');
+		} catch (error) {
+			test.ok(error instanceof Heket.NotEnoughOccurrencesError);
+			test.equals(error.getExpectedCount(), 3);
+			test.equals(error.getActualCount(), 2);
+		}
 	}
 
 	NumericConcatenation: {
@@ -349,9 +384,13 @@ function parseNumeric(test) {
 			rules:  [ ]
 		});
 
-		let non_match = parser.parse('abc');
-
-		test.equals(non_match, null);
+		try {
+			parser.parse('abc');
+		} catch (error) {
+			test.ok(error instanceof Heket.NumericValueMismatchError);
+			test.equals(error.getExpectedCharCode(), 99);
+			test.equals(error.getActualCharCode(), 98);
+		}
 	}
 
 	test.done();

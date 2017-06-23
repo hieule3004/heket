@@ -116,7 +116,7 @@ function unparseWithInvalidRule(test) {
 	} catch (error) {
 		test.ok(error instanceof Heket.InvalidRuleValueError);
 		test.ok(error.getRuleName() === 'baz');
-		test.ok(error.getRuleValue() === 'zap');
+		test.ok(error.getValue() === 'zap');
 	}
 
 	test.done();
