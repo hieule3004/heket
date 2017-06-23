@@ -63,8 +63,18 @@ var
 	Path     = require('path');
 
 var
-	InvalidRuleValueError = require('./lib/errors/invalid-rule-value'),
-	MissingRuleValueError = require('./lib/errors/missing-rule-value');
+	InputTooLongError           = require('./lib/errors/input-too-long'),
+	InputTooShortError          = require('./lib/errors/input-too-short'),
+	InvalidQuotedStringError    = require('./lib/errors/invalid-quoted-string'),
+	InvalidRuleValueError       = require('./lib/errors/invalid-rule-value'),
+	MissingRuleValueError       = require('./lib/errors/missing-rule-value'),
+	NoMatchingAlternativeError  = require('./lib/errors/no-matching-alternative'),
+	NotEnoughOccurrencesError   = require('./lib/errors/not-enough-occurrences'),
+	NumericValueMismatchError   = require('./lib/errors/numeric-value-mismatch'),
+	NumericValueOutOfRangeError = require('./lib/errors/numeric-value-out-of-range'),
+	RuleNotFoundError           = require('./lib/errors/rule-not-found');
+
+
 
 /**
  * Creates a parser for either:
@@ -148,6 +158,18 @@ module.exports = {
 	createRuleList,
 	readABNFFile,
 	getSpec,
+
+	// Expose these error constructors on the module itself, so that consumers
+	// are able to do `instanceof` checks on errors that they catch during
+	// parsing / unparsing:
+	InputTooLongError,
+	InputTooShortError,
+	InvalidQuotedStringError,
 	InvalidRuleValueError,
-	MissingRuleValueError
+	MissingRuleValueError,
+	NoMatchingAlternativeError,
+	NotEnoughOccurrencesError,
+	NumericValueMismatchError,
+	NumericValueOutOfRangeError,
+	RuleNotFoundError
 };
