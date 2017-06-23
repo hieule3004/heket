@@ -172,7 +172,7 @@ The above would print:
 
 
 &nbsp;
-### Practical example: IRC
+### Errors during parsing
 
 **IMPORTANT:** When you try to parse a string using a generated parser, and
 for whatever reason, that string does not match the specified ABNF, Heket will
