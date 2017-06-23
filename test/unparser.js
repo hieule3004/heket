@@ -234,6 +234,36 @@ function unparseWithFixedNumericValueRule(test) {
 	test.done();
 }
 
+function unparseWithUnsuppressedMissingRuleValueError(test) {
+	test.expect(4);
+
+	var nested_unparser = Heket.createUnparser(`
+		foo = bar
+		bar = "xxx" / "yyy"
+	`);
+
+	var wrapping_unparser = Heket.createUnparser(`
+		baz = wat
+		wat = "xxx" / "yyy"
+	`);
+
+	try {
+		wrapping_unparser.unparse(function getRuleValue(rule_name) {
+			test.ok(rule_name, 'wat');
+
+			// Notice: no value supplied for required rule "bar";
+			// this will throw a MissingRuleValueError.
+			return nested_unparser.unparse({ });
+		});
+	} catch (error) {
+		test.ok(error instanceof Heket.MissingRuleValueError);
+		test.equals(error.getRuleName(), 'bar');
+		test.equals(error.shouldBeSuppressed(), false);
+	}
+
+	test.done();
+}
+
 
 module.exports = {
 	unparseValid,
@@ -244,5 +274,6 @@ module.exports = {
 	unparseWithShorthandMap,
 	unparseWithFixedValueRule,
 	unparseWithRepeatingFixedValueRule,
-	unparseWithFixedNumericValueRule
+	unparseWithFixedNumericValueRule,
+	unparseWithUnsuppressedMissingRuleValueError
 };
