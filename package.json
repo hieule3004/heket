@@ -2,7 +2,7 @@
 	"name": "heket",
 	"description": "Heket - ABNF Parser Generator for Node.js",
 	"homepage": "https://github.com/burninggarden/heket",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"license": "ISC",
 	"repository": "https://github.com/burninggarden/heket.git",
 	"main": "node index",
