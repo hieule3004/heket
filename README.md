@@ -14,8 +14,9 @@
 7. [Unparsing](#unparsing)
 8. [Errors During Unparsing](#errors-during-unparsing)
 9. [Parsing + Unparsing](#parsing-unparsing)
-10. [Why Did You Write This?](#why-did-you-write-this)
-11. [Where Did The Name Come From?](#where-did-the-name-come-from)
+10. [Technical Details](#technical-details)
+11. [Why Did You Write This?](#why-did-you-write-this)
+12. [Where Did The Name Come From?](#where-did-the-name-come-from)
 
 
 &nbsp;
@@ -602,6 +603,39 @@ You can also just pass `match.getNext()` to `unparser.unparse()` directly
 var output = unparser.unparse(match.getNext);
 ```
 
+
+&nbsp;
+### Technical Details
+
+#### Backtracking
+
+Technically, Heket generates recursive descent parsers with support for
+backtracking. This means that a generated parser is able to walk backwards
+and re-parse previously matched portions of input strings if it realizes that
+it went down a blind alley. Take the following trivial example:
+
+```abnf
+foo = 1*"foo" "foobar"
+```
+
+The above rule will greedily match the string `"foo"` as many times as it can
+before proceeding to check for the existence of a `"foobar"` occurrence. Now,
+without proper backtracking, the parser would never be able to match the string
+`"foobar"` at the end of the input, because it would already have consumed the
+`"foo"` portion when parsing the prior segment. In other words, this would fail:
+
+```js
+parser.parse('foofoofoobar');
+```
+
+With backtracking, the parser algorithm is able to realize that it went one
+step too far, and that it needs to relinquish one of the `"foo"` substrings
+in order to properly match the tail segment.
+
+
+#### No parser combinator?
+
+Heket doesn't use a proper parser combinator for a handful of technical reasons.
 
 &nbsp;
 ### Why Did You Write This?
