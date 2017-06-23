@@ -174,6 +174,197 @@ The above would print:
 &nbsp;
 ### Practical example: IRC
 
+**IMPORTANT:** When you try to parse a string using a generated parser, and
+for whatever reason, that string does not match the specified ABNF, Heket will
+throw specific types of errors to indicate what type of mismatch occurred, and
+where.
+
+If uncaught, the error will print to the console and provide more information
+about the mismatch, and the position in the current ABNF where the mismatch
+was determined to occur.
+
+Each of the following error types are exposed on the Heket module itself, so
+you can type check thrown errors in order to determine what type of mismatch
+scenario you're dealing with, eg:
+
+```js
+if (error instanceof Heket.RuleNotFoundError) { ... }
+```
+
+#### InvalidRuleValueError
+
+```js
+var parser = Heket.createParser(`
+	foo = bar
+	bar = "baz"
+`);
+
+parser.parse('bam');
+```
+
+```
+Error: Invalid value for rule <bar>: "bam"
+foo = bar
+------^
+```
+
+#### MissingRuleValueError
+
+```js
+var parser = Heket.createParser(`
+	foo = bar baz
+	bar = "bar"
+	baz = "baz"
+`);
+
+parser.parse('bar');
+```
+
+```
+Error: Must supply a value for rule <baz>
+foo = bar baz
+----------^
+```
+
+#### RuleNotFoundError
+
+```js
+var parser = Heket.createParser(`
+	foo = bar baz
+	bar = "bar"
+`);
+
+parser.parse('barbaz');
+```
+
+```
+Error: Rule not found: <baz>
+foo = bar baz
+----------^
+```
+
+#### InvalidQuotedStringError
+
+```js
+var parser = Heket.createParser(`
+	foo = "bar"
+`);
+
+parser.parse('baz');
+```
+
+```
+Error: Invalid value for quoted string (expected "bar" but got "baz")
+foo = "bar"
+------^
+```
+
+#### InputTooLongError
+
+```js
+var parser = Heket.createParser(`
+	foo = "bar"
+`);
+
+parser.parse('barbaz');
+```
+
+```
+Error: Too much text to match (expected "bar", got "barbaz")
+foo = "bar"
+------^
+```
+
+#### InputTooShortError
+
+```js
+var parser = Heket.createParser(`
+	foo = "bar" "baz"
+`);
+
+parser.parse('bar');
+```
+
+```
+Error: Not enough text to match
+foo = "bar" "baz"
+------------^
+```
+
+#### NoMatchingAlternativeError
+
+```js
+var parser = Heket.createParser(`
+	foo = "bar" / "baz"
+`);
+
+parser.parse('bam');
+```
+
+```
+Error: No matching option for string: "bam"
+foo = "bar" / "baz"
+------^
+```
+
+#### NotEnoughOccurrencesError
+
+```js
+var parser = Heket.createParser(`
+	foo = 3"bar"
+`);
+
+parser.parse('barbar');
+```
+
+```
+Error: Not enough occurrences of repeating clause (expected 3, got 2)
+foo = 3"bar"
+------^
+```
+
+#### NumericValueMismatchError
+
+```js
+var parser = Heket.createParser(`
+	foo = %d65 ; A
+`);
+
+parser.parse('B');
+```
+
+```
+Error: Numeric value did not match (expected 65 / A, got 66 / B)
+foo = %d65
+------^
+```
+
+#### NumericValueOutOfRangeError
+
+```js
+var parser = Heket.createParser(`
+	foo = %d65 - 67 ; A - C
+`);
+
+parser.parse('D');
+```
+
+```
+Error: Numeric value out of range (expected value within [65 - 67], got 68 / D)
+foo = %d65-57
+------^
+```
+
+#### parseSafe()
+
+If you're not interested in error handling, you can use the `parser.parseSafe()`
+convenience method. It basically just wraps `parse()` in a `try { }` block,
+swallows the error, and returns null instead of a match instance.
+
+
+&nbsp;
+### Practical example: IRC
+
 Let's imagine we were running an IRC server, and we wanted to parse an incoming
 message from a client. In that case, the following snippet...
 
