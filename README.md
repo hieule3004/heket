@@ -7,16 +7,17 @@
 
 1. [Overview](#overview)
 2. [Installation](#installation)
-3. [Basic Parsing](#basic-parsing)
+3. [Basic parsing](#basic-parsing)
 4. [Rule matching](#rule-matching)
-5. [Practical Example: IRC](#practical-example-irc)
-6. [Impractical Example: ABNF](#impractical-example-abnf)
-7. [Unparsing](#unparsing)
-8. [Errors During Unparsing](#errors-during-unparsing)
-9. [Parsing + Unparsing](#parsing-unparsing)
-10. [Technical Details](#technical-details)
-11. [Why Did You Write This?](#why-did-you-write-this)
-12. [Where Did The Name Come From?](#where-did-the-name-come-from)
+5. [Errors during parsing](#errors-during-parsing)
+6. [Practical example: IRC](#practical-example-irc)
+7. [Impractical example: ABNF](#impractical-example-abnf)
+8. [Unparsing](#unparsing)
+9. [Errors during unparsing](#errors-during-unparsing)
+10. [Parsing + unparsing](#parsing-unparsing)
+11. [Technical details](#technical-details)
+12. [Why did you write this?](#why-did-you-write-this)
+13. [Where did the name come from?](#where-did-the-name-come-from)
 
 
 &nbsp;
@@ -40,14 +41,14 @@ values that you supply to it.
 
 
 &nbsp;
-### Basic Parsing
+### Basic parsing
 
 Let's say you had a basic ABNF rule:
 
 `a = "foo" / "bar"`
 
-You can use **Heket** to produce a custom parser from this simple grammar via the
-following:
+You can use **Heket** to produce a custom parser from this simple grammar via
+the following:
 
 ```js
 var Heket = require('heket');
@@ -70,18 +71,21 @@ console.log(parser.parse('baz'));
 
 The above snippet would print:
 
-```js
+```
 "foo"
 "bar"
-null
+
+Error: no matching option for string: "baz"
+a = "foo" / "bar"
+----^
 ```
 
 &nbsp;
-### Rule Matching
+### Rule matching
 
 The above examples were pretty trivial; they just checked for matches against
-basic strings. But **Heket** also allows you to unpack rule values from more complex
-grammar definitions. The following snippet...
+basic strings. But **Heket** also allows you to unpack rule values from more
+complex grammar definitions. The following snippet...
 
 ```js
 var parser = Heket.createParser(`
@@ -301,7 +305,7 @@ The above snippet would print:
 
 
 &nbsp;
-### Impractical Example: ABNF
+### Impractical example: ABNF
 
 As it turns out, it's possible to embody the formal specification for ABNF
 grammars in ABNF syntax itself. And the authors of RFC-5234 actually set about
@@ -482,18 +486,18 @@ Again, same result as before: `"barbarbarbarbarwat"`.
 
 
 &nbsp;
-### Errors During Unparsing
+### Errors during unparsing
 Sometimes when you try to unparse something, the values you supply to the
 unparser won't match the rules they're meant to fill. Or, the unparser will
 expect a value for a rule, but you fail to give it one, so it will be unable
-to proceed. In each of these cases, **Heket** will throw a specific type of error
-to signal that the unparsing step failed.
+to proceed. In each of these cases, **Heket** will throw a specific type of
+error to signal that the unparsing step failed.
 
 These error types also have some additional convenience methods to help you
 track down the source of unparsing issues:
 
 - `error.getRuleName()`
-- `error.getRuleValue()`
+- `error.getValue()`
 
 
 #### InvalidRuleValueError
@@ -524,7 +528,7 @@ try {
 } catch (error) {
     console.log(error instanceof Heket.InvalidRuleValueError);
     console.log(error.getRuleName());
-    console.log(error.getRuleValue());
+    console.log(error.getValue());
 }
 ```
 
@@ -557,7 +561,7 @@ try {
 } catch (error) {
     console.log(error instanceof Heket.MissingRuleValueError);
     console.log(error.getRuleName());
-    console.log(error.getRuleValue());
+    console.log(error.getValue());
 }
 ```
 
@@ -570,7 +574,7 @@ null
 
 
 &nbsp;
-### Parsing + Unparsing
+### Parsing + unparsing
 
 Where things get fun is when you combine parsers with unparsers. By the way,
 you can also obtain a reference to the unparser for an ABNF declaration from
@@ -605,7 +609,7 @@ var output = unparser.unparse(match.getNext);
 
 
 &nbsp;
-### Technical Details
+### Technical details
 
 #### Backtracking
 
@@ -638,7 +642,7 @@ in order to properly match the tail segment.
 Heket doesn't use a proper parser combinator for a handful of technical reasons.
 
 &nbsp;
-### Why Did You Write This?
+### Why did you write this?
 
 I needed a general-purpose ABNF parser in order to develop a better IRCD.
 The grammar for the IRC specification is embodied in ABNF. Turns out it's much
@@ -651,7 +655,7 @@ seen :]
 
 
 &nbsp;
-### Where Did the Name Come From?
+### Where did the name come from?
 
 Heket (or Heqet) was an Egyptian fertility goddess. She was represented as a
 woman with the head of a frog. I don't know what that has to do with parsing
