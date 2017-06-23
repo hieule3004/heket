@@ -51,7 +51,10 @@ function linkExternalRule(test) {
 			parser.parse('bar');
 			test.ok(false, 'We should not be here');
 		} catch (error) {
-			test.equals(error.toString(), 'Error: Rule not found: foo');
+			test.equals(
+				error.toString(),
+				'Error: Rule not found: <foo>\nbaz = foo\n------^'
+			);
 		}
 	}
 
