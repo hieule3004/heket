@@ -248,7 +248,7 @@ function unparseWithUnsuppressedMissingRuleValueError(test) {
 	`);
 
 	try {
-		wrapping_unparser.unparse(function getRuleValue(rule_name) {
+		wrapping_unparser.unparse(function getValueForRule(rule_name) {
 			test.ok(rule_name, 'wat');
 
 			// Notice: no value supplied for required rule "bar";
@@ -264,6 +264,26 @@ function unparseWithUnsuppressedMissingRuleValueError(test) {
 	test.done();
 }
 
+function unparseWithHyphenatedRuleName(test) {
+	test.expect(2);
+
+	var unparser = Heket.createUnparser(`
+		foo     = bar-baz
+		bar-baz = "bar" / "baz"
+	`);
+
+	var string = unparser.unparse(function getValueForRule(rule_name) {
+		// Make sure that the rule name is standardized to use underscores
+		// instead of hyphens:
+		test.equals(rule_name, 'bar_baz');
+
+		return 'bar';
+	});
+
+	test.equals(string, 'bar');
+	test.done();
+}
+
 
 module.exports = {
 	unparseValid,
@@ -275,5 +295,6 @@ module.exports = {
 	unparseWithFixedValueRule,
 	unparseWithRepeatingFixedValueRule,
 	unparseWithFixedNumericValueRule,
-	unparseWithUnsuppressedMissingRuleValueError
+	unparseWithUnsuppressedMissingRuleValueError,
+	unparseWithHyphenatedRuleName
 };
