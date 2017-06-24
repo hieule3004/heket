@@ -48,7 +48,34 @@ function multilineAlternatives(test) {
 	test.done();
 }
 
+function missingRuleDefinitionWithinAlternativeClause(test) {
+	test.expect(2);
+
+	var parser = Heket.createParser(`
+		foo = ( bar / baz )
+		bar = bam ; Notice that bam is never defined
+		baz = wat
+		wat = "wat"
+	`);
+
+	// The parser should not swallow errors due to alternative expansion of
+	// rules that themselves contain references to undefined rules.
+	// When parsing alternative clauses, other types of errors that might be
+	// thrown are normally suppressed, and the offending option bypassed.
+	// This suppression should not apply to instances of RuleNotFoundError.
+	try {
+		parser.parse('wat');
+		test.ok(false, 'We should not be here');
+	} catch (error) {
+		test.ok(error instanceof Heket.RuleNotFoundError);
+		test.equals(error.getRuleName(), 'bam');
+	}
+
+	test.done();
+}
+
 module.exports = {
 	getParserForRule,
-	multilineAlternatives
+	multilineAlternatives,
+	missingRuleDefinitionWithinAlternativeClause
 };
