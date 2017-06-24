@@ -284,6 +284,26 @@ function unparseWithHyphenatedRuleName(test) {
 	test.done();
 }
 
+function unparseWithStringCoercion(test) {
+	test.expect(2);
+
+	var unparser = Heket.createUnparser(`
+		foo = bar
+		bar = DIGIT
+	`);
+
+	// Without proper string coercion, the following would throw an
+	// InvalidRuleValueError, because 1 !== "1":
+	var string = unparser.unparse(function getValueForRule(rule_name) {
+		test.equals(rule_name, 'bar');
+
+		return 1;
+	});
+
+	test.equals(string, '1');
+	test.done();
+}
+
 
 module.exports = {
 	unparseValid,
@@ -296,5 +316,6 @@ module.exports = {
 	unparseWithRepeatingFixedValueRule,
 	unparseWithFixedNumericValueRule,
 	unparseWithUnsuppressedMissingRuleValueError,
-	unparseWithHyphenatedRuleName
+	unparseWithHyphenatedRuleName,
+	unparseWithStringCoercion
 };
