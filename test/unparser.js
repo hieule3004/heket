@@ -293,14 +293,33 @@ function unparseWithStringCoercion(test) {
 	`);
 
 	// Without proper string coercion, the following would throw an
-	// InvalidRuleValueError, because 1 !== "1":
+	// InvalidRuleValueError, because 0 !== "0":
 	var string = unparser.unparse(function getValueForRule(rule_name) {
 		test.equals(rule_name, 'bar');
 
-		return 1;
+		return 0;
 	});
 
-	test.equals(string, '1');
+	test.equals(string, '0');
+	test.done();
+}
+
+
+function unparseWithFalsyRuleValue(test) {
+	test.expect(1);
+
+	var unparser = Heket.createUnparser(`
+		foo = bar bar bar bar
+		bar = DIGIT
+	`);
+
+	// Without proper string coercion, the following would throw an
+	// InvalidRuleValueError, because 0 !== "0":
+	var string = unparser.unparse({
+		bar: [0, 0, 0, 0]
+	});
+
+	test.equals(string, '0000');
 	test.done();
 }
 
@@ -317,5 +336,6 @@ module.exports = {
 	unparseWithFixedNumericValueRule,
 	unparseWithUnsuppressedMissingRuleValueError,
 	unparseWithHyphenatedRuleName,
-	unparseWithStringCoercion
+	unparseWithStringCoercion,
+	unparseWithFalsyRuleValue
 };
