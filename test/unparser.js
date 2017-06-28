@@ -323,6 +323,29 @@ function unparseWithFalsyRuleValue(test) {
 	test.done();
 }
 
+function unparseWithMissingRuleInAlternatives(test) {
+	test.expect(2);
+
+	var unparser = Heket.createUnparser(`
+		foo = (bar baz) / "x"
+		bar = "bar"
+	`);
+
+	try {
+		unparser.unparse({
+			bar: 'bar',
+			baz: 'baz'
+		});
+
+		test.ok(false, 'We should not be here');
+	} catch (error) {
+		test.ok(error instanceof Heket.RuleNotFoundError);
+		test.equals(error.getRuleName(), 'baz');
+	}
+
+	test.done();
+}
+
 
 module.exports = {
 	unparseValid,
@@ -337,5 +360,6 @@ module.exports = {
 	unparseWithUnsuppressedMissingRuleValueError,
 	unparseWithHyphenatedRuleName,
 	unparseWithStringCoercion,
-	unparseWithFalsyRuleValue
+	unparseWithFalsyRuleValue,
+	unparseWithMissingRuleInAlternatives
 };
