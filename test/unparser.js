@@ -365,6 +365,27 @@ function unparseWithNoMatchingAlternativeValue(test) {
 	test.done();
 }
 
+function unparseWithNestedObjectValue(test) {
+	test.expect(1);
+
+	var unparser = Heket.createUnparser(`
+		foo = bar
+		bar = baz wat
+		baz = "baz" / "biz"
+		wat = "wat" / "wit"
+	`);
+
+	var string = unparser.unparse({
+		bar: {
+			baz: 'baz',
+			wat: 'wit'
+		}
+	});
+
+	test.equals(string, 'bazwit');
+	test.done();
+}
+
 
 module.exports = {
 	unparseValid,
@@ -381,5 +402,6 @@ module.exports = {
 	unparseWithStringCoercion,
 	unparseWithFalsyRuleValue,
 	unparseWithMissingRuleInAlternatives,
-	unparseWithNoMatchingAlternativeValue
+	unparseWithNoMatchingAlternativeValue,
+	unparseWithNestedObjectValue
 };

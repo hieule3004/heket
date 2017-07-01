@@ -652,7 +652,8 @@ The above would print `"barbarbarbarbarwat"`.
 
 **NOTE**: You can also pass an object to `unparser.unparse()`, whose keys are
 rule names, and whose values are arrays of strings to use as values for that
-rule whenever the unparser encounters it. To modify the above example:
+rule whenever the unparser encounters it. (You can also just pass single strings
+directly, instead of wrapping them in arrays). To modify the above example:
 
 ```js
 var unparser = Heket.createUnparser(`
@@ -664,8 +665,7 @@ var unparser = Heket.createUnparser(`
 
 var rule_values = {
     bar: ['bar', 'bar', 'bar', 'bar', 'bar'],
-    baz: [ ],
-    wat: ['wat']
+    wat: 'wat'
 };
 
 var string = unparser.unparse(rule_values);
@@ -674,6 +674,25 @@ console.log(string);
 ```
 
 Again, same result as before: `"barbarbarbarbarwat"`.
+
+Lastly, you can pass nested object structures to `unparse`, and those child
+objects will be passed to the corresponding `unparse` call for the corresponding
+rule. For example:
+
+```js
+var unparser = Heket.createUnparser(`
+	foo = bar
+	bar = baz / wat
+	baz = "baz" / "biz"
+	wat = "wat" / "wit"
+`);
+
+unparser.unparse({
+	bar: {
+		baz: 'biz'
+	}
+});
+```
 
 
 &nbsp;
