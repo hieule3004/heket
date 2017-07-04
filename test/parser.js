@@ -74,8 +74,27 @@ function missingRuleDefinitionWithinAlternativeClause(test) {
 	test.done();
 }
 
+function interstitialOptionalValue(test) {
+	test.expect(1);
+
+	var parser = Heket.createParser(`
+		foo = "A" [ "B" ] "C"
+	`);
+
+	try {
+		parser.parse('A');
+		test.ok(false, 'We should not be here');
+	} catch (error) {
+		test.ok(error instanceof Heket.InputTooShortError);
+	}
+
+	test.done();
+}
+
+
 module.exports = {
 	getParserForRule,
 	multilineAlternatives,
-	missingRuleDefinitionWithinAlternativeClause
+	missingRuleDefinitionWithinAlternativeClause,
+	interstitialOptionalValue
 };
