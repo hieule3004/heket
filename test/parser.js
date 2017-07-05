@@ -85,9 +85,22 @@ function interstitialOptionalValue(test) {
 		parser.parse('A');
 		test.ok(false, 'We should not be here');
 	} catch (error) {
-		test.ok(error instanceof Heket.InputTooShortError);
+		test.ok(error instanceof Heket.InvalidQuotedStringError);
 	}
 
+	test.done();
+}
+
+function twoTrailingOptionalValues(test) {
+	test.expect(1);
+
+	var parser = Heket.createParser(`
+		foo = "A" [ "B" ] [ "C" ]
+	`);
+
+	var match = parser.parse('A');
+
+	test.equals(match.getString(), 'A');
 	test.done();
 }
 
@@ -96,5 +109,6 @@ module.exports = {
 	getParserForRule,
 	multilineAlternatives,
 	missingRuleDefinitionWithinAlternativeClause,
-	interstitialOptionalValue
+	interstitialOptionalValue,
+	twoTrailingOptionalValues
 };
