@@ -871,7 +871,7 @@ such grammars are fortunately uncommon in practice.
 
 The performance implications of this regular expression caching are pretty
 dramatic. Take this simple test case using the
-[IRC ABNF rules](tree/master/abnf/irc.abnf):
+[IRC ABNF rules](abnf/irc.abnf):
 
 ```js
 var irc_spec = FS.readFileSync('./abnf/irc.abnf', 'utf8');
