@@ -116,6 +116,20 @@ function alternativeWithinGroup(test) {
 	test.done();
 }
 
+function coreRuleExcludedFromResults(test) {
+	test.expect(1);
+
+	var parser = Heket.createParser(`
+		foo = SP bar "baz"
+		bar = "bar"
+	`);
+
+	var match = parser.parse(' barbaz');
+
+	test.equals(match.get('bar'), 'bar');
+	test.done();
+}
+
 
 module.exports = {
 	getParserForRule,
@@ -123,5 +137,6 @@ module.exports = {
 	missingRuleDefinitionWithinAlternativeClause,
 	interstitialOptionalValue,
 	twoTrailingOptionalValues,
-	alternativeWithinGroup
+	alternativeWithinGroup,
+	coreRuleExcludedFromResults
 };
