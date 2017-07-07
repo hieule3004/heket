@@ -852,6 +852,54 @@ in order to properly match the tail segment.
 
 Heket doesn't use a proper parser combinator for a handful of technical reasons.
 
+#### Performance
+
+As you can imagine, recursively constructing parse result trees every time you
+want to pattern match a string gets pretty expensive, mostly due to the constant
+allocation / deallocation of throwaway objects to hold the results together
+(when you are throwing lots of short-lived objects on the heap, the GC quickly
+stops being your friend).
+
+To combat this, Heket tries to create and cache regular expressions that can
+perform the equivalent of parsing input text via tree descent. One downside
+of this approach is that Heket is not very good at optimizing grammars with
+circular rule references, but those fortunately seem to be uncommon.
+
+The performance implications of this regular expression caching are pretty
+dramatic. Take this simple test case using the
+[IRC ABNF rules](tree/master/abnf/irc.abnf):
+
+```js
+var irc_spec = FS.readFileSync('./abnf/irc.abnf', 'utf8');
+
+var parser = Heket.createParser(irc_spec);
+
+// A sample IRC message; I copied this straight from the RFC:
+var input = ':WiZ!jto@tolsun.oulu.fi PART #playzone :I lost\r\n';
+
+var
+	index = 0,
+	start = Date.now();
+
+while (index < 100) {
+	parser.parse(input);
+	index++;
+}
+
+var elapsed_ms = Date.now() - start;
+
+console.log(elapsed_ms + ' ms');
+```
+
+Without regex caching:
+`33719 ms`
+
+With regex caching:
+`31 ms`
+
+That's quite an improvement!
+
+
 &nbsp;
 ### Why did you write this?
 
@@ -860,9 +908,7 @@ The grammar for the IRC specification is embodied in ABNF. Turns out it's much
 less time consuming to just copy+paste the definitions from the spec as ABNF
 literals and let the parser determine whether input messages to the IRC server
 match the specified format, than to manually embody all of the logic of the
-specification in the code directly. Whether or not it actually ends up being
-performant to generate ASTs for every inbound message at runtime remains to be
-seen :]
+specification in the code directly.
 
 
 &nbsp;
