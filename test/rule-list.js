@@ -25,8 +25,7 @@ function linkExternalRule(test) {
 			rules:  [
 				{
 					rule_name: 'foo',
-					string: 'bar',
-					rules: [ ]
+					string: 'bar'
 				}
 			]
 		});

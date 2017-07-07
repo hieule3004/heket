@@ -39,8 +39,7 @@ function multilineAlternatives(test) {
 		rules:  [
 			{
 				rule_name: 'baz',
-				string: 'baz',
-				rules: [ ]
+				string: 'baz'
 			}
 		]
 	});
