@@ -866,7 +866,8 @@ stops being your friend).
 To combat this, Heket tries to create and cache regular expressions that can
 perform the equivalent of parsing input text via tree descent. One downside
 of this approach is that Heket is not very good at optimizing grammars with
-circular rule references, but those fortunately seem to be uncommon.
+circular rule references (because those can't be embodied in a regex), but
+such grammars are fortunately uncommon in practice.
 
 The performance implications of this regular expression caching are pretty
 dramatic. Take this simple test case using the
