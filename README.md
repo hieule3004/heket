@@ -848,10 +848,13 @@ step too far, and that it needs to relinquish one of the `"foo"` substrings
 in order to properly match the tail segment.
 
 
+&nbsp;
 #### No parser combinator?
 
 Heket doesn't use a proper parser combinator for a handful of technical reasons.
 
+
+&nbsp;
 #### Performance
 
 As you can imagine, recursively constructing parse result trees every time you
