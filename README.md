@@ -61,7 +61,9 @@ var parser = Heket.createParser(abnf_string);
 Then you can use that parser to parse input text, to see if it matches the ABNF
 that you originally specified. If the input text adheres to your grammar, then
 `parse()` will return a match object with information about the matched result.
-If the input text does not adhere to the grammar, `parse()` will return `null`.
+If the input text does not adhere to the grammar, `parse()` will throw an error
+indicating why (see [Errors during parsing](#errors-during-parsing) for more
+info).
 
 ```js
 console.log(parser.parse('foo').string);
