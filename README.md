@@ -197,8 +197,8 @@ if (error instanceof Heket.RuleNotFoundError) { ... }
 
 ```js
 var parser = Heket.createParser(`
-	foo = bar
-	bar = "baz"
+    foo = bar
+    bar = "baz"
 `);
 
 parser.parse('bam');
@@ -214,9 +214,9 @@ foo = bar
 
 ```js
 var parser = Heket.createParser(`
-	foo = bar baz
-	bar = "bar"
-	baz = "baz"
+    foo = bar baz
+    bar = "bar"
+    baz = "baz"
 `);
 
 parser.parse('bar');
@@ -232,8 +232,8 @@ foo = bar baz
 
 ```js
 var parser = Heket.createParser(`
-	foo = bar baz
-	bar = "bar"
+    foo = bar baz
+    bar = "bar"
 `);
 
 parser.parse('barbaz');
@@ -249,7 +249,7 @@ foo = bar baz
 
 ```js
 var parser = Heket.createParser(`
-	foo = "bar"
+    foo = "bar"
 `);
 
 parser.parse('baz');
@@ -265,7 +265,7 @@ foo = "bar"
 
 ```js
 var parser = Heket.createParser(`
-	foo = "bar"
+    foo = "bar"
 `);
 
 parser.parse('barbaz');
@@ -281,7 +281,7 @@ foo = "bar"
 
 ```js
 var parser = Heket.createParser(`
-	foo = "bar" "baz"
+    foo = "bar" "baz"
 `);
 
 parser.parse('bar');
@@ -297,7 +297,7 @@ foo = "bar" "baz"
 
 ```js
 var parser = Heket.createParser(`
-	foo = "bar" / "baz"
+    foo = "bar" / "baz"
 `);
 
 parser.parse('bam');
@@ -313,7 +313,7 @@ foo = "bar" / "baz"
 
 ```js
 var parser = Heket.createParser(`
-	foo = 3"bar"
+    foo = 3"bar"
 `);
 
 parser.parse('barbar');
@@ -329,7 +329,7 @@ foo = 3"bar"
 
 ```js
 var parser = Heket.createParser(`
-	foo = %d65 ; A
+    foo = %d65 ; A
 `);
 
 parser.parse('B');
@@ -345,7 +345,7 @@ foo = %d65
 
 ```js
 var parser = Heket.createParser(`
-	foo = %d65 - 67 ; A - C
+    foo = %d65 - 67 ; A - C
 `);
 
 parser.parse('D');
@@ -683,16 +683,16 @@ rule. For example:
 
 ```js
 var unparser = Heket.createUnparser(`
-	foo = bar
-	bar = baz / wat
-	baz = "baz" / "biz"
-	wat = "wat" / "wit"
+    foo = bar
+    bar = baz / wat
+    baz = "baz" / "biz"
+    wat = "wat" / "wit"
 `);
 
 unparser.unparse({
-	bar: {
-		baz: 'biz'
-	}
+    bar: {
+        baz: 'biz'
+    }
 });
 ```
 
@@ -881,13 +881,12 @@ var parser = Heket.createParser(irc_spec);
 // A sample IRC message; I copied this straight from the RFC:
 var input = ':WiZ!jto@tolsun.oulu.fi PART #playzone :I lost\r\n';
 
-var
-	index = 0,
-	start = Date.now();
+var index = 0;
+var start = Date.now();
 
 while (index < 100) {
-	parser.parse(input);
-	index++;
+    parser.parse(input);
+    index++;
 }
 
 var elapsed_ms = Date.now() - start;
