@@ -104,11 +104,25 @@ function twoTrailingOptionalValues(test) {
 	test.done();
 }
 
+function alternativeWithinGroup(test) {
+	test.expect(1);
+
+	var parser = Heket.createParser(`
+		foo = "A" / "B" ( "C" / "D" )
+	`);
+
+	var match = parser.parse('BC');
+
+	test.equals(match.getString(), 'BC');
+	test.done();
+}
+
 
 module.exports = {
 	getParserForRule,
 	multilineAlternatives,
 	missingRuleDefinitionWithinAlternativeClause,
 	interstitialOptionalValue,
-	twoTrailingOptionalValues
+	twoTrailingOptionalValues,
+	alternativeWithinGroup
 };
