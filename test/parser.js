@@ -130,6 +130,20 @@ function coreRuleExcludedFromResults(test) {
 	test.done();
 }
 
+function sequentialOptionalChildren(test) {
+	var parser = Heket.createParser(`
+		foo = bar ( *baz / *wat )
+		bar = "bar"
+		baz = "baz"
+		wat = "wat"
+	`);
+
+	var match = parser.parse('bar');
+
+	test.equals(match.get('bar'), 'bar');
+	test.done();
+}
+
 
 module.exports = {
 	getParserForRule,
@@ -138,5 +152,6 @@ module.exports = {
 	interstitialOptionalValue,
 	twoTrailingOptionalValues,
 	alternativeWithinGroup,
-	coreRuleExcludedFromResults
+	coreRuleExcludedFromResults,
+	sequentialOptionalChildren
 };
