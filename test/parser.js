@@ -84,7 +84,7 @@ function interstitialOptionalValue(test) {
 		parser.parse('A');
 		test.ok(false, 'We should not be here');
 	} catch (error) {
-		test.ok(error instanceof Heket.InvalidQuotedStringError);
+		test.ok(error instanceof Heket.InputTooShortError);
 	}
 
 	test.done();
