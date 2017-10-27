@@ -86,12 +86,16 @@ var
  * @returns {lib/parser}
  */
 function createParser(string_or_rule, rule_list) {
-	if (string_or_rule instanceof Rule) {
-		return Parser.fromRule(string_or_rule);
-	} else if (typeof string_or_rule === 'string') {
-		return Parser.fromString(string_or_rule, rule_list);
-	} else {
-		throw new Error('Invalid value passed to createParser()');
+	try {
+		if (string_or_rule instanceof Rule) {
+			return Parser.fromRule(string_or_rule);
+		} else {
+			return Parser.fromString(string_or_rule, rule_list);
+		}
+	} catch (error) {
+		throw new Error(
+			`Invalid value passed to createParser(): ${string_or_rule}`
+		);
 	}
 }
 
@@ -105,7 +109,13 @@ function createParser(string_or_rule, rule_list) {
  * @returns {lib/unparser}
  */
 function createUnparser(string_or_rule, rule_list) {
-	return createParser(string_or_rule, rule_list).getUnparser();
+	try {
+		return createParser(string_or_rule, rule_list).getUnparser();
+	} catch (error) {
+		throw new Error(
+			`Invalid value passed to createUnparser(): ${string_or_rule}`
+		);
+	}
 }
 
 /**
