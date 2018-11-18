@@ -153,6 +153,29 @@ function getSpec() {
 	return readABNFFile('abnf');
 }
 
+/**
+ * Disables regex caching. Regex caching can dramatically speed up repeated
+ * checks against the same rules in your ABNF parser, but opens your program
+ * up to catastrophic backtracking (read: infinite loop) in cases where your
+ * ABNF input grammar produces dangerous regex patterns. This is a temporary
+ * workaround while I implement logic to selectively disable regex caching
+ * in these cases.
+ *
+ * @returns {void}
+ */
+function disableRegexCaching() {
+	Core.disableRegexCaching();
+}
+
+/**
+ * Inverse of the above.
+ *
+ * @returns {void}
+ */
+function enableRegexCaching() {
+	Core.disableRegexCaching();
+}
+
 // Set up the core rules used in parsing ABNF grammars.
 // These core rules are themselves embodied via ABNF, which requires that
 // they live in a singleton and enumerated from outside the other classes
@@ -168,6 +191,8 @@ module.exports = {
 	createRuleList,
 	readABNFFile,
 	getSpec,
+	disableRegexCaching,
+	enableRegexCaching,
 
 	// Expose these error constructors on the module itself, so that consumers
 	// are able to do `instanceof` checks on errors that they catch during

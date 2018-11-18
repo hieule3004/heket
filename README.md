@@ -902,6 +902,16 @@ With regex caching:
 
 That's quite an improvement!
 
+... note, however, that regex caching can be disastrous if your input ABNF
+grammar produces certain dangerous regex matches. This phenomenon is known as
+[catastrophic backtracking](https://www.regular-expressions.info/catastrophic.html),
+and manifests as an infinite loop when calling `parser.parse()`. If this happens
+to you, you can disable regex caching via:
+
+```js
+Heket.disableRegexCaching();
+```
+
 
 &nbsp;
 ### Why did you write this?

@@ -1,0 +1,159 @@
+XRI               = [ "xri://" ] xri-hier-part [ "?" iquery ]
+                  [ "#" ifragment ]
+
+xri-hier-part     = ( xri-authority / iauthority ) xri-path-abempty
+
+XRI-reference     = XRI
+                  / relative-XRI-ref
+
+absolute-XRI      = [ "xri://" ] xri-hier-part [ "?" iquery ]
+
+relative-XRI-ref  = relative-XRI-part [ "?" iquery ] [ "#" ifragment ]
+
+relative-XRI-part = xri-path-absolute
+                  / xri-path-noscheme
+                  / ipath-empty
+
+xri-value         = xri-no-scheme / relative-XRI-ref
+
+xri-no-scheme     = xri-hier-part [ "?" iquery ]
+                  [ "#" ifragment ]
+
+xri-authority     = gcs-authority
+                  / xref-authority
+
+gcs-authority     = pgcs-authority / rgcs-authority
+
+pgcs-authority    = "!" xri-subseg-pt-nz *xri-subseg
+
+rgcs-authority    = rgcs-char xri-segment
+
+rgcs-char         = "=" / "@" / "+" / "$"
+
+xref-authority    = xref *xri-subseg
+
+xref              = "(" ( XRI-reference / IRI ) ")"
+
+xri-path          = xri-path-abempty
+                  / xri-path-absolute
+                  / xri-path-noscheme
+                  / ipath-empty
+
+xri-path-abempty  = *( "/" xri-segment )
+
+xri-path-absolute = "/" [ xri-segment-nz *( "/" xri-segment ) ]
+
+xri-path-noscheme = xri-subseg-od-nx *xri-subseg-nc *( "/" xri-segment )
+
+xri-segment       = xri-subseg-od *xri-subseg
+
+xri-segment-nz    = xri-subseg-od-nz *xri-subseg
+
+xri-subseg        = ( "*" / "!" ) (xref / *xri-pchar)
+
+xri-subseg-nc     = ( "*" / "!" ) (xref / *xri-pchar-nc)
+
+xri-subseg-od     = [ "*" / "!" ] (xref / *xri-pchar)
+
+xri-subseg-od-nz  = [ "*" / "!" ] (xref / 1*xri-pchar)
+
+xri-subseg-od-nx  = [ "*" / "!" ] 1*xri-pchar-nc
+
+xri-subseg-pt-nz  = "!" (xref / 1*xri-pchar)
+
+xri-pchar         = iunreserved / pct-encoded / xri-sub-delims / ":"
+
+xri-pchar-nc      = iunreserved / pct-encoded / xri-sub-delims
+
+xri-reserved      = xri-gen-delims / xri-sub-delims
+
+xri-gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "(" / ")"
+                  / "*" / "!" / rgcs-char
+
+xri-sub-delims    = "&" / ";" / "," / "'"
+
+IRI               = scheme ":" ihier-part [ "?" iquery ]
+                  [ "#" ifragment ]
+
+scheme            = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+
+ihier-part        = "//" iauthority ipath-abempty
+                  / ipath-abs
+                  / ipath-rootless
+                  / ipath-empty
+
+iauthority        = [ iuserinfo "@" ] ihost [ ":" port ]
+
+iuserinfo         = *( iunreserved / pct-encoded / sub-delims / ":" )
+
+ihost             = IP-literal / IPv4address / ireg-name
+
+IP-literal        = "[" ( IPv6address / IPvFuture  ) "]"
+
+IPvFuture         = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+
+IPv6address       =                            6( h16 ":" ) ls32
+                  /                       "::" 5( h16 ":" ) ls32
+                  / [               h16 ] "::" 4( h16 ":" ) ls32
+                  / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+                  / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+                  / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
+                  / [ *4( h16 ":" ) h16 ] "::"              ls32
+                  / [ *5( h16 ":" ) h16 ] "::"              h16
+                  / [ *6( h16 ":" ) h16 ] "::"
+
+ls32              = ( h16 ":" h16 ) / IPv4address
+
+h16               = 1*4HEXDIG
+
+IPv4address       = dec-octet "." dec-octet "." dec-octet "." dec-octet
+
+dec-octet         = DIGIT                ; 0-9
+                  / %x31-39 DIGIT        ; 10-99
+                  / "1" 2DIGIT           ; 100-199
+                  / "2" %x30-34 DIGIT    ; 200-249
+                  / "25" %x30-35         ; 250-255
+
+ireg-name         = *( iunreserved / pct-encoded / sub-delims )
+
+port              = *DIGIT
+
+ipath-abempty     = *( "/" isegment )
+
+ipath-abs         = "/" [ isegment-nz *( "/" isegment ) ]
+
+ipath-rootless    = isegment-nz *( "/" isegment )
+
+ipath-empty       = 0<ipchar>
+
+isegment          = *ipchar
+
+isegment-nz       = 1*ipchar
+
+iquery            = *( ipchar / iprivate / "/" / "?" )
+
+iprivate          = %xE000-F8FF / %xF0000-FFFFD / %x100000-10FFFD
+
+ifragment         = *( ipchar / "/" / "?" )
+
+ipchar            = iunreserved / pct-encoded / sub-delims / ":" / "@"
+
+iunreserved       = ALPHA / DIGIT / "-" / "." / "_" / "~" / ucschar
+
+pct-encoded       = "%" HEXDIG HEXDIG
+
+ucschar           = %xA0-D7FF / %xF900-FDCF / %xFDF0-FFEF
+                  / %x10000-1FFFD / %x20000-2FFFD / %x30000-3FFFD
+                  / %x40000-4FFFD / %x50000-5FFFD / %x60000-6FFFD
+                  / %x70000-7FFFD / %x80000-8FFFD / %x90000-9FFFD
+                  / %xA0000-AFFFD / %xB0000-BFFFD / %xC0000-CFFFD
+                  / %xD0000-DFFFD / %xE1000-EFFFD
+
+reserved          = gen-delims / sub-delims
+
+gen-delims        = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+
+sub-delims        = "!" / "$" / "&" / "'" / "(" / ")"
+                  / "*" / "+" / "," / ";" / "="
+
+unreserved        = ALPHA / DIGIT / "-" / "." / "_" / "~"

@@ -1,6 +1,7 @@
 
 var
-	Heket = require('../index');
+	Heket = require('../index'),
+	FS    = require('fs');
 
 function getParserForRule(test) {
 	test.expect(1);
@@ -144,6 +145,22 @@ function sequentialOptionalChildren(test) {
 	test.done();
 }
 
+function avoidCatastrophicBacktracking(test) {
+	Heket.disableRegexCaching();
+
+	var XRI = FS.readFileSync('./abnf/xri.abnf', 'utf8');
+
+	var
+		parser = Heket.createParser(XRI),
+		text   = '@example/(@example/foo)',
+		match  = parser.parse(text);
+
+	test.equals(match.getString(), text);
+
+	Heket.enableRegexCaching();
+	test.done();
+}
+
 
 module.exports = {
 	getParserForRule,
@@ -153,5 +170,6 @@ module.exports = {
 	twoTrailingOptionalValues,
 	alternativeWithinGroup,
 	coreRuleExcludedFromResults,
-	sequentialOptionalChildren
+	sequentialOptionalChildren,
+	avoidCatastrophicBacktracking
 };
