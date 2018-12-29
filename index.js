@@ -173,7 +173,7 @@ function disableRegexCaching() {
  * @returns {void}
  */
 function enableRegexCaching() {
-	Core.disableRegexCaching();
+	Core.enableRegexCaching();
 }
 
 // Set up the core rules used in parsing ABNF grammars.
