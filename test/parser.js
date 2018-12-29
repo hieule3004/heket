@@ -161,6 +161,18 @@ function avoidCatastrophicBacktracking(test) {
 	test.done();
 }
 
+function parseQuotedParentheses(test) {
+	var parser = Heket.createParser(`
+		foo = "(" ( "(" / ")" ) ")"
+	`);
+
+	var
+		text  = '())',
+		match = parser.parse();
+
+	test.equals(match.getString(), text);
+}
+
 
 module.exports = {
 	getParserForRule,
@@ -171,5 +183,6 @@ module.exports = {
 	alternativeWithinGroup,
 	coreRuleExcludedFromResults,
 	sequentialOptionalChildren,
-	avoidCatastrophicBacktracking
+	avoidCatastrophicBacktracking,
+	parseQuotedParentheses
 };
