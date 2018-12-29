@@ -146,6 +146,8 @@ function sequentialOptionalChildren(test) {
 }
 
 function avoidCatastrophicBacktracking(test) {
+	test.expect(1);
+
 	Heket.disableRegexCaching();
 
 	var XRI = FS.readFileSync('./abnf/xri.abnf', 'utf8');
@@ -162,15 +164,36 @@ function avoidCatastrophicBacktracking(test) {
 }
 
 function parseQuotedParentheses(test) {
+	test.expect(1);
+
 	var parser = Heket.createParser(`
 		foo = "(" ( "(" / ")" ) ")"
 	`);
 
 	var
 		text  = '())',
-		match = parser.parse();
+		match = parser.parse(text);
 
 	test.equals(match.getString(), text);
+	test.done();
+}
+
+function parseUndefinedArgument(test) {
+	test.expect(1);
+
+	var parser = Heket.createParser(`
+		foo = "no undefined text allowed"
+	`);
+
+	try {
+		parser.parse();
+	} catch (error) {
+		let expected_string = 'Error: Must specify a string argument to parser.parse()';
+
+		test.equals(error.toString(), expected_string);
+	}
+
+	test.done();
 }
 
 
@@ -184,5 +207,6 @@ module.exports = {
 	coreRuleExcludedFromResults,
 	sequentialOptionalChildren,
 	avoidCatastrophicBacktracking,
-	parseQuotedParentheses
+	parseQuotedParentheses,
+	parseUndefinedArgument
 };
