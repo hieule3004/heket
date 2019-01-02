@@ -196,6 +196,23 @@ function parseUndefinedArgument(test) {
 	test.done();
 }
 
+function backtrackingAcrossRuleBoundary(test) {
+	test.expect(1);
+
+	var text = '(aba)';
+
+	var parser = Heket.createParser(`
+	foo = bar
+	bar = "(" baz ")"
+	baz = 1*( "a" / "b" / ")" )
+	`);
+
+	var match = parser.parse(text);
+
+	test.equals(match.getString(), text);
+	test.done();
+}
+
 
 module.exports = {
 	getParserForRule,
@@ -208,5 +225,6 @@ module.exports = {
 	sequentialOptionalChildren,
 	avoidCatastrophicBacktracking,
 	parseQuotedParentheses,
-	parseUndefinedArgument
+	parseUndefinedArgument,
+	backtrackingAcrossRuleBoundary
 };
