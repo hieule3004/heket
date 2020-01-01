@@ -66,8 +66,8 @@ indicating why (see [Errors during parsing](#errors-during-parsing) for more
 info).
 
 ```js
-console.log(parser.parse('foo').string);
-console.log(parser.parse('bar').string);
+console.log(parser.parse('foo').getString());
+console.log(parser.parse('bar').getString());
 console.log(parser.parse('baz'));
 ```
 
@@ -576,7 +576,7 @@ var spec = Heket.getSpec();
 
 var abnf_parser = Heket.createParser(spec);
 
-console.log(parser.parse(spec) !== null);
+console.log(parser.parseSafe(spec) !== null);
 // Prints "true"; it's valid ABNF!
 ```
 
