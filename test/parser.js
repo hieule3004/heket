@@ -23,6 +23,32 @@ function getParserForRule(test) {
 	test.done();
 }
 
+function commentLine(test) {
+	test.expect(1);
+
+	var parser = Heket.createParser(`
+		foo =  bar
+		foo =/ baz
+		; this line is entirely a comment, and contains no rule declaration
+		bar =  "bar"
+		baz =  "baz"
+	`);
+
+	var match = parser.parse('baz');
+
+	test.deepEqual(match.getRawResult(), {
+		string: 'baz',
+		rules:  [
+			{
+				rule_name: 'baz',
+				string: 'baz'
+			}
+		]
+	});
+
+	test.done();
+}
+
 function multilineAlternatives(test) {
 	test.expect(1);
 
@@ -217,6 +243,7 @@ function backtrackingAcrossRuleBoundary(test) {
 module.exports = {
 	getParserForRule,
 	multilineAlternatives,
+	commentLine,
 	missingRuleDefinitionWithinAlternativeClause,
 	interstitialOptionalValue,
 	twoTrailingOptionalValues,
