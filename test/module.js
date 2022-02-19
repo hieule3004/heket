@@ -75,7 +75,7 @@ function parseOneQuotedString(test) {
 
 function parseTwoQuotedStrings(test) {
 
-	test.expect(15);
+	test.expect(17);
 
 	TwoRules: {
 		let parser = Heket.createParser(`
@@ -140,6 +140,72 @@ function parseTwoQuotedStrings(test) {
 		}
 	}
 
+	NestedRuleResultsWithCaching: {
+		Heket.enableRegexCaching();
+
+		let parser = Heket.createParser(`
+			foo = bar baz
+			bar = "bar"
+			baz = wat / ayy
+			wat = "xxx" / "yyy"
+			ayy = "ayy"
+		`);
+
+		let match = parser.parse('barxxx');
+
+		test.deepEqual(match.getRawResult(), {
+			string: 'barxxx',
+			rules:  [
+				{
+					rule_name: 'bar',
+					string: 'bar'
+				},
+				{
+					rule_name: 'baz',
+					string: 'xxx'
+				}
+			]
+		});
+	}
+
+	NestedRuleResultsWithoutCaching: {
+		Heket.disableRegexCaching();
+
+		let parser = Heket.createParser(`
+			foo = bar baz
+			bar = "bar"
+			baz = wat / ayy
+			wat = "xxx" / "yyy"
+			ayy = "ayy"
+		`);
+
+		let match = parser.parse('barxxx');
+
+		test.deepEqual(match.getRawResult(), {
+			string: 'barxxx',
+			rules:  [
+				{
+					rule_name: 'bar',
+					string: 'bar',
+					rules: []
+				},
+				{
+					rule_name: 'baz',
+					string: 'xxx',
+					rules: [
+						{
+							rule_name: 'wat',
+							string: 'xxx',
+							rules: []
+						}
+					]
+				}
+			]
+		});
+
+		Heket.enableRegexCaching();
+	}
+
 	RuleAndQuotedStringAlternatives: {
 		let parser = Heket.createParser(`
 			foo = bar / "baz"
@@ -187,7 +253,8 @@ function parseOptional(test) {
 			rules:  [
 				{
 					rule_name: 'bar',
-					string: 'bar'
+					string: 'bar',
+					rules: []
 				}
 			]
 		});
@@ -284,14 +351,14 @@ function parseRepeats(test) {
 		test.deepEqual(match.getRawResult(), {
 			string: 'bazbarbarbazbazbazbarbar',
 			rules:  [
-				{ rule_name: 'baz', string: 'baz' },
-				{ rule_name: 'bar', string: 'bar' },
-				{ rule_name: 'bar', string: 'bar' },
-				{ rule_name: 'baz', string: 'baz' },
-				{ rule_name: 'baz', string: 'baz' },
-				{ rule_name: 'baz', string: 'baz' },
-				{ rule_name: 'bar', string: 'bar' },
-				{ rule_name: 'bar', string: 'bar' }
+				{ rule_name: 'baz', string: 'baz', rules: [] },
+				{ rule_name: 'bar', string: 'bar', rules: [] },
+				{ rule_name: 'bar', string: 'bar', rules: [] },
+				{ rule_name: 'baz', string: 'baz', rules: [] },
+				{ rule_name: 'baz', string: 'baz', rules: [] },
+				{ rule_name: 'baz', string: 'baz', rules: [] },
+				{ rule_name: 'bar', string: 'bar', rules: [] },
+				{ rule_name: 'bar', string: 'bar', rules: [] }
 			]
 		});
 
