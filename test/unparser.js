@@ -8,7 +8,7 @@ function unparseValid(test) {
 
 	var spec = `
 		foo = 1*bar *(" " baz) [wat]
-		bar = "bam"
+		bar = %s"Bam"
 		baz = "bal"
 		wat = "WAT"
 	`;
@@ -25,7 +25,7 @@ function unparseValid(test) {
 				if (bar_index < 5) {
 					test.equals(bar_index, index);
 					bar_index++;
-					return 'bam';
+					return 'Bam';
 				}
 
 				return null;
@@ -45,7 +45,7 @@ function unparseValid(test) {
 		}
 	});
 
-	test.equals(string, 'bambambambambam bal bal bal');
+	test.equals(string, 'BamBamBamBamBam bal bal bal');
 	test.done();
 }
 
