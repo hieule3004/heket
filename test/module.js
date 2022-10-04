@@ -4,7 +4,7 @@ var
 
 
 function parseOneQuotedString(test) {
-	test.expect(10);
+	test.expect(26);
 
 	WithQuotedString: {
 		let parser = Heket.createParser(`
@@ -68,6 +68,43 @@ function parseOneQuotedString(test) {
 			test.equals(error.getValue(), 'xx');
 			test.equals(error.getRuleName(), 'bar');
 		}
+	}
+
+	WithExplicitCaseSensitivity: {
+		let parser = Heket.createParser(`
+			rulename = %s"aBc"
+		`);
+
+		const validCases = ['aBc']
+		const invalidCases = ["abc", "Abc", "abC", "ABc", "aBC", "AbC", "ABC"]
+
+		validCases.forEach(input => {
+			const match = parser.parse(input)
+			test.deepEqual(match.getRawResult(), {
+				string: 'aBc',
+				rules: []
+			})
+		})
+
+		invalidCases.forEach(input => {
+			test.throws(() => parser.parse(input))
+		})
+	}
+
+	WithExplicitCaseInsensitivity: {
+		let parser = Heket.createParser(`
+			rulename = %i"aBc"
+		`);
+
+		const validCases = ['aBc', "abc", "Abc", "abC", "ABc", "aBC", "AbC", "ABC"]
+
+		validCases.forEach(input => {
+			const match = parser.parse(input)
+			test.deepEqual(match.getRawResult(), {
+				string: input,
+				rules: []
+			})
+		})
 	}
 
 	test.done();
