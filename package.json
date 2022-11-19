@@ -9,7 +9,6 @@
 		"nodeunit": "^0.11.1"
 	},
 	"scripts": {
-		"start": "node index",
 		"test": "./bin/test"
 	},
 	"types": "./index.d.ts"
